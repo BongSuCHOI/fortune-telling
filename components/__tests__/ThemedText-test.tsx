@@ -1,10 +1,10 @@
 import * as React from 'react';
 import renderer from 'react-test-renderer';
 
-import { ThemedText } from '../ThemedText';
+import { Typography } from '../Typography.js';
 
 it(`renders correctly`, () => {
-  const tree = renderer.create(<ThemedText>Snapshot test!</ThemedText>).toJSON();
+    const tree = renderer.create(<Typography>Snapshot test!</Typography>).toJSON();
 
-  expect(tree).toMatchSnapshot();
+    expect(tree).toMatchSnapshot();
 });

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, withRepeat, withSequence } from 'react-native-reanimated';
 
-import { ThemedText } from '@/components/ThemedText';
+import { Typography } from '@/components/Typography';
 
 export function HelloWave() {
     const rotationAnimation = useSharedValue(0);
@@ -20,7 +20,7 @@ export function HelloWave() {
 
     return (
         <Animated.View style={animatedStyle}>
-            <ThemedText style={styles.text}>👋</ThemedText>
+            <Typography style={styles.text}>👋</Typography>
         </Animated.View>
     );
 }

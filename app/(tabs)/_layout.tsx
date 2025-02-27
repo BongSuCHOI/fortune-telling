@@ -5,49 +5,70 @@ import { Platform } from 'react-native';
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { ActiveTintColor, InactiveTintColor } from '@/constants/Colors';
 
 export default function TabLayout() {
-    const colorScheme = useColorScheme();
-
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+                tabBarActiveTintColor: ActiveTintColor,
+                tabBarInactiveTintColor: InactiveTintColor,
                 headerShown: false,
                 tabBarButton: HapticTab,
                 tabBarBackground: TabBarBackground,
+                animation: 'shift',
                 tabBarStyle: Platform.select({
                     ios: {
                         // Use a transparent background on iOS to show the blur effect
                         position: 'absolute',
                     },
-                    default: {},
+                    default: {
+                        height: 70,
+                        borderTopWidth: 1,
+                        elevation: 0,
+                        shadowOpacity: 0,
+                        shadowColor: 'transparent',
+                        shadowOffset: {
+                            width: 0,
+                            height: 0,
+                        },
+                        backgroundColor: '#fff',
+                    },
                 }),
+                tabBarItemStyle: {
+                    flex: 0,
+                    width: '50%',
+                    alignSelf: 'center',
+                    // justifyContent: 'center',
+                    // alignItems: 'center',
+                },
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    marginTop: 2,
+                },
             }}
         >
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: 'Home',
+                    title: '운세',
                     tabBarIcon: ({ color }) => (
                         <IconSymbol
                             size={28}
-                            name="house.fill"
+                            name="sparkles"
                             color={color}
                         />
                     ),
                 }}
             />
             <Tabs.Screen
-                name="explore"
+                name="saju"
                 options={{
-                    title: 'Explore',
+                    title: '사주',
                     tabBarIcon: ({ color }) => (
                         <IconSymbol
                             size={28}
-                            name="paperplane.fill"
+                            name="star.circle.fill"
                             color={color}
                         />
                     ),
