@@ -1,5 +1,5 @@
-import FortuneScreen from '@/app/fortune/love';
+import FortuneDailyScreen from '@/app/fortune';
 
 export default function HomeScreen() {
-    return <FortuneScreen />;
+    return <FortuneDailyScreen />;
 }

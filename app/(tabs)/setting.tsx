@@ -5,9 +5,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { Typography } from '@/components/Typography';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 
-export default function FortuneLoveScreen() {
-    const router = useRouter();
-
+export default function SettingScreen() {
     return (
         <ParallaxScrollView>
             <View style={styles.titleContainer}>
@@ -39,49 +37,11 @@ export default function FortuneLoveScreen() {
                 <Typography size="base">오늘은 운이 크게 열리는 날입니다. 예상치 못한 좋은 기회가 찾아오거나, 주변에서 도움을 받게 될 가능성이 큽니다. 작은 일이라도 정성스럽게 임하면 더 큰 행운으로 이어질 수 있습니다.</Typography>
             </View>
             <View style={styles.fortuneBannerContainer}>
-                <Pressable
-                    style={styles.squareButton}
-                    onPress={() => router.push('/fortune/love')}
-                >
+                <Pressable onPress={() => useRouter().push('/fortune/love')}>
                     <IconSymbol
-                        size={130}
+                        size={28}
                         name="heart.fill"
-                        color="black"
-                        style={styles.squareButtonInIcon}
-                    />
-                    <Typography
-                        size="xl"
-                        bold
-                    >
-                        애정운
-                    </Typography>
-                </Pressable>
-                <Pressable
-                    style={styles.squareButton}
-                    onPress={() => router.push('/fortune/love')}
-                >
-                    <IconSymbol
-                        size={130}
-                        name="heart.fill"
-                        color="black"
-                        style={styles.squareButtonInIcon}
-                    />
-                    <Typography
-                        size="xl"
-                        bold
-                    >
-                        애정운
-                    </Typography>
-                </Pressable>
-                <Pressable
-                    style={styles.squareButton}
-                    onPress={() => router.push('/fortune/love')}
-                >
-                    <IconSymbol
-                        size={130}
-                        name="heart.fill"
-                        color="black"
-                        style={styles.squareButtonInIcon}
+                        color={'black'}
                     />
                     <Typography
                         size="xl"
@@ -103,25 +63,5 @@ const styles = StyleSheet.create({
     todayFortuneContainer: {
         marginTop: 30,
     },
-    fortuneBannerContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
-    squareButton: {
-        flexBasis: '46.5%',
-        marginBottom: '7%',
-        aspectRatio: 1,
-        borderRadius: 10,
-        backgroundColor: 'pink',
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-    },
-    squareButtonInIcon: {
-        position: 'absolute',
-        left: -40,
-        bottom: -40,
-        opacity: 0.25,
-    },
+    fortuneBannerContainer: {},
 });

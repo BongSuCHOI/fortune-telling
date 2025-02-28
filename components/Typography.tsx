@@ -1,16 +1,19 @@
-import { Text, type TextProps, StyleSheet } from 'react-native';
+import { View, Text, type TextProps, StyleSheet } from 'react-native';
 
 export type TypographyProps = TextProps & {
-    size?: 'base' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
+    text: string;
+    size?: 'base' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
     bold?: boolean;
     description?: boolean;
+    underline?: boolean;
 };
 
-export function Typography({ style, size = 'base', bold = false, description = false, ...rest }: TypographyProps) {
+export function Typography({ text, style, size = 'base', bold = false, description = false, underline = false, ...rest }: TypographyProps) {
     return (
         <Text
             style={[
                 size === 'base' ? styles.base : undefined,
+                size === 'xs' ? styles.xs : undefined,
                 size === 'sm' ? styles.sm : undefined,
                 size === 'md' ? styles.md : undefined,
                 size === 'lg' ? styles.lg : undefined,
@@ -18,11 +21,43 @@ export function Typography({ style, size = 'base', bold = false, description = f
                 size === 'xxl' ? styles.xxl : undefined,
                 size === 'xxxl' ? styles.xxxl : undefined,
                 bold ? { fontWeight: 500 } : undefined,
-                description ? { color: '#999' } : undefined,
+                description ? { color: '#888' } : undefined,
+                underline ? { textDecorationLine: 'underline' } : undefined,
                 style,
             ]}
             {...rest}
-        />
+        >
+            {text}
+        </Text>
+    );
+}
+
+export function KeepAllTypography({ text, style, size = 'base', bold = false, description = false, underline = false, ...rest }: TypographyProps) {
+    return (
+        <View style={[{ flexDirection: 'row', flexWrap: 'wrap' }]}>
+            {text?.split(' ').map((word, index) => (
+                <Text
+                    key={`${word}-${index}`}
+                    style={[
+                        size === 'base' ? styles.base : undefined,
+                        size === 'xs' ? styles.xs : undefined,
+                        size === 'sm' ? styles.sm : undefined,
+                        size === 'md' ? styles.md : undefined,
+                        size === 'lg' ? styles.lg : undefined,
+                        size === 'xl' ? styles.xl : undefined,
+                        size === 'xxl' ? styles.xxl : undefined,
+                        size === 'xxxl' ? styles.xxxl : undefined,
+                        bold ? { fontWeight: 500 } : undefined,
+                        description ? { color: '#888' } : undefined,
+                        underline ? { textDecorationLine: 'underline' } : undefined,
+                        style,
+                    ]}
+                    {...rest}
+                >
+                    {word}{' '}
+                </Text>
+            ))}
+        </View>
     );
 }
 
@@ -30,6 +65,10 @@ const styles = StyleSheet.create({
     base: {
         fontSize: 16,
         lineHeight: 20.8,
+    },
+    xs: {
+        fontSize: 12,
+        lineHeight: 15.6,
     },
     sm: {
         fontSize: 14,

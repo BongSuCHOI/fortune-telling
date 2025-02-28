@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
+import { Tabs } from 'expo-router';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -36,11 +36,7 @@ export default function TabLayout() {
                     },
                 }),
                 tabBarItemStyle: {
-                    flex: 0,
-                    width: '50%',
-                    alignSelf: 'center',
-                    // justifyContent: 'center',
-                    // alignItems: 'center',
+                    paddingTop: 6,
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
@@ -69,6 +65,19 @@ export default function TabLayout() {
                         <IconSymbol
                             size={28}
                             name="star.circle.fill"
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="setting"
+                options={{
+                    title: '설정',
+                    tabBarIcon: ({ color }) => (
+                        <IconSymbol
+                            size={28}
+                            name="gearshape.fill"
                             color={color}
                         />
                     ),

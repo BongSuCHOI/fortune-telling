@@ -19,6 +19,8 @@ const MAPPING = {
     'briefcase.fill': 'cases',
     'graduationcap.fill': 'school',
     'dumbbell.fill': 'fitness-center',
+    'gearshape.fill': 'settings',
+    'lock.fill': 'lock',
 } as Partial<Record<import('expo-symbols').SymbolViewProps['name'], React.ComponentProps<typeof MaterialIcons>['name']>>;
 
 export type IconSymbolName = keyof typeof MAPPING;

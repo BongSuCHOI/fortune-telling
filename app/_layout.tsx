@@ -35,10 +35,12 @@ export default function RootLayout() {
                     name="(tabs)"
                     options={{ headerShown: false }}
                 />
-                <Stack.Screen name="fortune/love/index" />
                 <Stack.Screen name="+not-found" />
             </Stack>
-            <StatusBar style="auto" />
+            <StatusBar
+                style="auto"
+                backgroundColor="white"
+            />
         </>
     );
 }
