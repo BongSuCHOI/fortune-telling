@@ -10,8 +10,8 @@ const MAPPING = {
     // See MaterialIcons here: https://icons.expo.fyi
     // See SF Symbols in the SF Symbols app on Mac.
     'star.circle.fill': 'stars',
-    'spa.fill': 'spa',
-    'sparkles': 'auto-awesome',
+    'star.fill': 'star',
+    sparkles: 'auto-awesome',
     'chevron.left': 'chevron-left',
     'chevron.right': 'chevron-right',
     'heart.fill': 'favorite',
@@ -21,6 +21,8 @@ const MAPPING = {
     'dumbbell.fill': 'fitness-center',
     'gearshape.fill': 'settings',
     'lock.fill': 'lock',
+    'clock.fill': 'access-time-filled',
+    calendar: 'calendar-month',
 } as Partial<Record<import('expo-symbols').SymbolViewProps['name'], React.ComponentProps<typeof MaterialIcons>['name']>>;
 
 export type IconSymbolName = keyof typeof MAPPING;

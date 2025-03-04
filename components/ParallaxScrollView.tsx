@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        padding: 30,
+        padding: 0,
         gap: 15,
         overflow: 'hidden',
     },

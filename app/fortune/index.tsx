@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, StyleSheet, Pressable, Modal } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { Typography, KeepAllTypography } from '@/components/Typography';
+import { Typography, KeepAllTypography } from '@/components/ui/Typography';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { DonutChart } from '@/components/ui/DonutChart';
 import { PrimaryColor, SubTextColor } from '@/constants/Colors';
@@ -216,7 +216,7 @@ export default function FortuneDailyScreen() {
                     <View style={[styles.modalContents, styles.adModalContents]}>
                         <View style={styles.adModalText}>
                             <Typography
-                                size="lg"
+                                size="md"
                                 bold
                                 text="광고를 시청하시겠습니까?"
                                 style={styles.adModalTitle}
@@ -224,7 +224,7 @@ export default function FortuneDailyScreen() {
                             <Typography
                                 size="base"
                                 bold
-                                text="모든 운세를 확인하세요!"
+                                text="오늘의 모든 운세를 확인하세요!"
                                 style={{ color: SubTextColor }}
                             />
                         </View>
@@ -387,16 +387,17 @@ const styles = StyleSheet.create({
     },
     adModalContents: {
         maxWidth: '70%',
-        paddingHorizontal: 40,
+        paddingHorizontal: 30,
         paddingVertical: 30,
     },
     adModalText: {
         alignItems: 'center',
         gap: 3,
-        marginBottom: 35,
+        marginBottom: 40,
     },
     adModalTitle: {
-        marginBottom: 25,
+        marginTop: 25,
+        marginBottom: 10,
     },
     adModalButtons: {
         gap: 15,

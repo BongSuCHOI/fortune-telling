@@ -55,14 +55,14 @@ export function DonutChart({
                 />
                 {/* 중앙 숫자 */}
                 <SvgText
-                    x={size / 2 - 11}
-                    y={size / 2 + 9}
+                    x={size / 2 - 1}
+                    y={size / 2 + 16}
                     textAnchor="middle"
-                    fontSize={size * 0.2}
+                    fontSize={size * 0.3}
                     fontWeight="bold"
                     fill={color}
                 >
-                    {percentage}점
+                    {percentage}
                 </SvgText>
             </Svg>
         </View>
