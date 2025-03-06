@@ -1,14 +1,14 @@
 import { View, Text, type TextProps, StyleSheet } from 'react-native';
 
 export type TypographyProps = TextProps & {
-    text: string;
+    text?: string;
     size?: 'base' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
     bold?: boolean;
     description?: boolean;
     underline?: boolean;
 };
 
-export function Typography({ text, style, size = 'base', bold = false, description = false, underline = false, ...rest }: TypographyProps) {
+export function Typography({ text = '', style, size = 'base', bold = false, description = false, underline = false, ...rest }: TypographyProps) {
     return (
         <Text
             style={[
@@ -32,7 +32,7 @@ export function Typography({ text, style, size = 'base', bold = false, descripti
     );
 }
 
-export function KeepAllTypography({ text, style, size = 'base', bold = false, description = false, underline = false, ...rest }: TypographyProps) {
+export function KeepAllTypography({ text = '', style, size = 'base', bold = false, description = false, underline = false, ...rest }: TypographyProps) {
     return (
         <View style={[{ flexDirection: 'row', flexWrap: 'wrap' }]}>
             {text?.split(' ').map((word, index) => (

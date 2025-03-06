@@ -3,19 +3,27 @@ import Animated, { useAnimatedRef } from 'react-native-reanimated';
 
 import { useBottomTabOverflow } from '@/components/ui/TabBarBackground';
 
-export default function ParallaxScrollView({ children }: { children: React.ReactNode }) {
+import type { StyleProp, ViewStyle } from 'react-native';
+
+interface ParallaxScrollViewProps {
+    containerStyle?: StyleProp<ViewStyle>;
+    contentsStyle?: StyleProp<ViewStyle>;
+    children: React.ReactNode;
+}
+
+export default function ParallaxScrollView({ children, containerStyle, contentsStyle }: ParallaxScrollViewProps) {
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const bottom = useBottomTabOverflow();
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, containerStyle]}>
             <Animated.ScrollView
                 ref={scrollRef}
                 scrollEventThrottle={16}
                 scrollIndicatorInsets={{ bottom }}
                 contentContainerStyle={{ paddingBottom: bottom }}
             >
-                <View style={styles.content}>{children}</View>
+                <View style={[styles.content, contentsStyle]}>{children}</View>
             </Animated.ScrollView>
         </View>
     );
