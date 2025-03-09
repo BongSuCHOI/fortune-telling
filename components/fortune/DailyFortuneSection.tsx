@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 
 import { useModalManager } from '@/hooks/useModalManager';
 import { useFortuneSelection } from '@/hooks/useFortuneSelection';
+import { useAdWatchStatus } from '@/hooks/useAdWatchStatus';
 
 import { Typography } from '@/components/ui/Typography';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -37,7 +38,10 @@ export function DailyFortuneSection() {
     const { modalVisibility, openModal, closeModal } = useModalManager();
 
     // 운세 선택 상태 관리
-    const { selectedFortune, hasWatchedAds, selectFortune, markAdsWatched, resetSelection } = useFortuneSelection<DailyFortuneCode, DailyFortuneName>();
+    const { selectedFortune, selectFortune, resetSelection } = useFortuneSelection<DailyFortuneCode, DailyFortuneName>();
+
+    // 카테고리별 광고 상태
+    const { adWatched, markAdWatched } = useAdWatchStatus<'dailyOtherFortune'>(['dailyOtherFortune']);
 
     // 선택된 운세에 따른 운세 데이터 결정
     const fortuneData = useMemo(() => {
@@ -50,7 +54,7 @@ export function DailyFortuneSection() {
     // 운세 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
     const onFortunePressed = (category: DailyFortuneCode, name: DailyFortuneName) => {
         selectFortune({ category, name });
-        if (hasWatchedAds) {
+        if (adWatched['dailyOtherFortune']) {
             openModal(FORTUNE_MODAL_KEY);
         } else {
             openModal(AD_MODAL_KEY);
@@ -70,7 +74,7 @@ export function DailyFortuneSection() {
 
             // 보상을 성공적으로 받은 경우 상태 업데이트
             if (reward) {
-                markAdsWatched();
+                markAdWatched('dailyOtherFortune');
                 openModal(FORTUNE_MODAL_KEY);
             }
         } catch (error) {
@@ -110,7 +114,7 @@ export function DailyFortuneSection() {
                         >
                             <IconSymbol
                                 size={27}
-                                name={hasWatchedAds ? icon : 'lock.fill'}
+                                name={adWatched['dailyOtherFortune'] ? icon : 'lock.fill'}
                                 color={iconColor}
                                 style={styles.fortuneIcon}
                             />

@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 
 import { useModalManager } from '@/hooks/useModalManager';
 import { useFortuneSelection } from '@/hooks/useFortuneSelection';
+import { useAdWatchStatus } from '@/hooks/useAdWatchStatus';
 
 import { Typography } from '@/components/ui/Typography';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -15,10 +16,14 @@ import { MOCK_YEAR_FORTUNE_DATA, MOCK_MONTH_FORTUNE_DATA, MOCK_WEEK_FORTUNE_DATA
 import type { SpecialFortuneCode, SpecialFortuneName, SpecialFortuneItem } from '@/types/fortune';
 import type { ConfirmModalData } from '@/types/modal';
 
+const YEAR = 'year';
+const MONTH = 'month';
+const WEEK = 'week';
+
 const SPECIAL_FORTUNE_ITEM_DATA: SpecialFortuneItem[] = [
-    { category: 'year', name: '올해', icon: 'star.fill', iconColor: SecondaryColor, description: '새해의 운세' },
-    { category: 'month', name: '이번 달', icon: 'calendar', iconColor: SecondaryColor, description: '월간 운세' },
-    { category: 'week', name: '이번 주', icon: 'clock.fill', iconColor: SecondaryColor, description: '주간 운세' },
+    { category: YEAR, name: '올해', icon: 'star.fill', iconColor: SecondaryColor, description: '새해의 운세' },
+    { category: MONTH, name: '이번 달', icon: 'calendar', iconColor: SecondaryColor, description: '월간 운세' },
+    { category: WEEK, name: '이번 주', icon: 'clock.fill', iconColor: SecondaryColor, description: '주간 운세' },
 ];
 
 const CONFIRM_MODAL_DATA: ConfirmModalData = {
@@ -37,23 +42,19 @@ export function SpecialFortuneSection() {
     // 특별 운세 선택 상태 관리
     const { selectedFortune, selectFortune, resetSelection } = useFortuneSelection<SpecialFortuneCode, SpecialFortuneName>();
 
-    // 카테고리별 광고 시청 여부 관리
-    const [specialFortuneAdState, setSpecialFortuneAdState] = useState<Record<SpecialFortuneCode, boolean>>({
-        year: false,
-        month: false,
-        week: false,
-    });
+    // 카테고리별 광고 상태
+    const { adWatched, markAdWatched } = useAdWatchStatus<SpecialFortuneCode>([YEAR, MONTH, WEEK]);
 
     // 선택된 운세에 따른 운세 데이터 결정
     const fortuneData = useMemo(() => {
         if (!selectedFortune) return null;
         const { category } = selectedFortune;
         switch (category) {
-            case 'year':
+            case YEAR:
                 return MOCK_YEAR_FORTUNE_DATA[category];
-            case 'month':
+            case MONTH:
                 return MOCK_MONTH_FORTUNE_DATA[category];
-            case 'week':
+            case WEEK:
                 return MOCK_WEEK_FORTUNE_DATA[category];
             default:
                 return null;
@@ -63,7 +64,7 @@ export function SpecialFortuneSection() {
     // 운세 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
     const onFortunePressed = (category: SpecialFortuneCode, name: SpecialFortuneName) => {
         selectFortune({ category, name });
-        if (specialFortuneAdState[category]) {
+        if (adWatched[category]) {
             openModal(FORTUNE_MODAL_KEY);
         } else {
             openModal(AD_MODAL_KEY);
@@ -80,7 +81,7 @@ export function SpecialFortuneSection() {
             const reward = true; // 테스트를 위한 더미 값
 
             if (reward && selectedFortune) {
-                setSpecialFortuneAdState((prev) => ({ ...prev, [selectedFortune.category]: true }));
+                markAdWatched(selectedFortune.category);
                 openModal(FORTUNE_MODAL_KEY);
             }
         } catch (error) {
@@ -120,7 +121,7 @@ export function SpecialFortuneSection() {
                             <View style={styles.specialFortuneIconContents}>
                                 <IconSymbol
                                     size={32}
-                                    name={specialFortuneAdState[category] ? icon : 'lock.fill'}
+                                    name={adWatched[category] ? icon : 'lock.fill'}
                                     color={iconColor}
                                 />
                             </View>
