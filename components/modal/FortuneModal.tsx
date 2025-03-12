@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
 
 import { ModalContainer } from '@/components/modal/ModalContainer';
 import { Typography, KeepAllTypography } from '@/components/ui/Typography';
@@ -50,13 +50,11 @@ export function FortuneModal({ isVisible, onClose, text = '', pointText, data }:
                     color={PrimaryColor}
                     style={{ marginBottom: 30 }}
                 />
-                <ScrollView>
-                    <KeepAllTypography
-                        size="base"
-                        style={{ lineHeight: 25, color: SubTextColor }}
-                        text={explanation}
-                    />
-                </ScrollView>
+                <KeepAllTypography
+                    size="base"
+                    style={{ lineHeight: 25, color: SubTextColor }}
+                    text={explanation}
+                />
             </View>
             <View style={styles.modalButtons}>
                 <Pressable

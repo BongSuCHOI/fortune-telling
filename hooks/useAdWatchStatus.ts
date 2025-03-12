@@ -1,32 +1,45 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
+import useAsyncStorage from '@/hooks/useAsyncStorage';
+import { AdWatchedState } from '@/types/storage';
 
-export function useAdWatchStatus<T extends string>(keys: T[]) {
-    if (!keys || keys.length === 0) {
-        throw new Error('Requires an array of keys.');
-    }
+/**
+ * 광고 시청 상태를 관리하는 훅
+ * 새로운 useAsyncStorage 훅을 사용하여 구현
+ */
+export function useAdWatchStatus<T extends string>(categories: T[]) {
+    const { data: adWatchedData, updateData, refreshData } = useAsyncStorage('AdWatched');
 
-    const initialState = keys.reduce((acc, key) => ({ ...acc, [key]: false }), {} as Record<T, boolean>);
+    // 기본적으로 모든 카테고리가 false(광고 시청 안함)로 초기화된 상태를 반환
+    const adWatched = categories.reduce((acc, category) => {
+        acc[category] = adWatchedData?.[category] || false;
+        return acc;
+    }, {} as Record<T, boolean>);
 
-    const [adWatchedMap, setAdWatchedMap] = useState<Record<T, boolean>>(initialState);
+    // 특정 카테고리의 광고 시청 상태를 변경하는 함수
+    const markAdWatched = useCallback(
+        (category: T) => {
+            const updatedData: Partial<AdWatchedState> = { [category]: true };
+            updateData(updatedData);
+        },
+        [updateData]
+    );
 
-    // 함수들을 더 간결하게 정의
-    const markAdWatched = (key: T) => {
-        setAdWatchedMap((prev) => ({ ...prev, [key]: true }));
-    };
+    // 모든 광고 시청 상태를 초기화하는 함수
+    const resetAdWatchedStatus = useCallback(() => {
+        const resetData = categories.reduce((acc, category) => {
+            acc[category] = false;
+            return acc;
+        }, {} as Record<T, boolean>);
 
-    const resetAdWatched = (key: T) => {
-        setAdWatchedMap((prev) => ({ ...prev, [key]: false }));
-    };
-
-    // 여러 키를 한번에 초기화하는 유틸리티 함수 추가
-    const resetAllAdWatched = () => {
-        setAdWatchedMap(initialState);
-    };
+        updateData(resetData);
+    }, [categories, updateData]);
 
     return {
-        adWatched: adWatchedMap,
+        adWatched,
         markAdWatched,
-        resetAdWatched,
-        resetAllAdWatched,
+        resetAdWatchedStatus,
+        refreshAdWatchedStatus: refreshData,
     };
 }
+
+export default useAdWatchStatus;

@@ -2,9 +2,11 @@ import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 
 import { useModalManager } from '@/hooks/useModalManager';
+import useUserInfo from '@/hooks/useUserInfo';
 
 import { Typography } from '@/components/ui/Typography';
 import { DonutChart } from '@/components/ui/DonutChart';
+import { FortuneSkeletonUI } from '@/components/ui/SkeletonLoader';
 import { FortuneModal } from '@/components/modal/FortuneModal';
 import { PrimaryColor, SubTextColor } from '@/constants/Colors';
 
@@ -13,12 +15,25 @@ import { MOCK_DAILY_TOTAL_FORTUNE_DATA } from '@/data/mockData';
 const FORTUNE_MODAL_KEY = 'dailyTotalFortune';
 
 export function MainFortuneSection() {
+    // 사용자 정보 관리 훅
+    const { userInfo, loading, redirectIfUserInfoMissing } = useUserInfo();
+
     // 모달 상태 관리
     const { modalVisibility, openModal, closeModal } = useModalManager();
 
     const dailyFortuneData = useMemo(() => {
         return MOCK_DAILY_TOTAL_FORTUNE_DATA.total;
     }, []);
+
+    // 사용자 정보가 없을 경우 리다이렉트
+    if (!loading && !userInfo) {
+        redirectIfUserInfoMissing();
+    }
+
+    // 로딩 중일 때 스켈레톤 UI 표시
+    if (loading || !userInfo) {
+        return <FortuneSkeletonUI />;
+    }
 
     return (
         <>
@@ -29,7 +44,7 @@ export function MainFortuneSection() {
                         size="xl"
                         style={styles.titleText}
                         bold
-                        text="홍길동님,"
+                        text={`${userInfo.name}님,`}
                     />
                     <Typography
                         size="xl"

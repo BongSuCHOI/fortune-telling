@@ -32,6 +32,7 @@ const CONFIRM_MODAL_DATA: ConfirmModalData = {
 
 const AD_MODAL_KEY = 'dailyAd';
 const FORTUNE_MODAL_KEY = 'dailyFortune';
+const DAILY_FORTUNE_AD_KEY = 'dailyFortuneAd';
 
 export function DailyFortuneSection() {
     // 모달 상태 관리
@@ -41,7 +42,7 @@ export function DailyFortuneSection() {
     const { selectedFortune, selectFortune, resetSelection } = useFortuneSelection<DailyFortuneCode, DailyFortuneName>();
 
     // 카테고리별 광고 상태
-    const { adWatched, markAdWatched } = useAdWatchStatus<'dailyOtherFortune'>(['dailyOtherFortune']);
+    const { adWatched, markAdWatched } = useAdWatchStatus<typeof DAILY_FORTUNE_AD_KEY>([DAILY_FORTUNE_AD_KEY]);
 
     // 선택된 운세에 따른 운세 데이터 결정
     const fortuneData = useMemo(() => {
@@ -54,7 +55,7 @@ export function DailyFortuneSection() {
     // 운세 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
     const onFortunePressed = (category: DailyFortuneCode, name: DailyFortuneName) => {
         selectFortune({ category, name });
-        if (adWatched['dailyOtherFortune']) {
+        if (adWatched[DAILY_FORTUNE_AD_KEY]) {
             openModal(FORTUNE_MODAL_KEY);
         } else {
             openModal(AD_MODAL_KEY);
@@ -74,7 +75,7 @@ export function DailyFortuneSection() {
 
             // 보상을 성공적으로 받은 경우 상태 업데이트
             if (reward) {
-                markAdWatched('dailyOtherFortune');
+                markAdWatched(DAILY_FORTUNE_AD_KEY);
                 openModal(FORTUNE_MODAL_KEY);
             }
         } catch (error) {
@@ -114,7 +115,7 @@ export function DailyFortuneSection() {
                         >
                             <IconSymbol
                                 size={27}
-                                name={adWatched['dailyOtherFortune'] ? icon : 'lock.fill'}
+                                name={adWatched[DAILY_FORTUNE_AD_KEY] ? icon : 'lock.fill'}
                                 color={iconColor}
                                 style={styles.fortuneIcon}
                             />
