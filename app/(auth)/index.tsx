@@ -5,10 +5,10 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Application from 'expo-application';
 import { Platform } from 'react-native';
 
-import useUserInfo from '@/hooks/useUserInfo';
+import { useUserInfo } from '@/hooks/useUserInfo';
 
 import { Typography, KeepAllTypography } from '@/components/ui/Typography';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { PrimaryColor, SubTextColor } from '@/constants/Colors';
 

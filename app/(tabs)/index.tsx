@@ -1,4 +1,4 @@
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { MainFortuneSection } from '@/components/fortune/MainFortuneSection';
 import { DailyFortuneSection } from '@/components/fortune/DailyFortuneSection';
 import { SpecialFortuneSection } from '@/components/fortune/SpecialFortuneSection';

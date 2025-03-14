@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -24,7 +24,7 @@ export function useUserInfo() {
 
     // 사용자 정보가 없을 경우 알림 표시 및 리다이렉트
     const redirectIfUserInfoMissing = useCallback(() => {
-        Alert.alert('사용자 정보를 찾을 수 없습니다.', '사용자 정보 등록 페이지로 이동합니다.\n문제가 지속될 경우 고객센터로 문의 바랍니다.', [{ text: '확인', onPress: () => router.replace('/(auth)') }]);
+        Alert.alert('사용자 정보를 찾을 수 없습니다.', '원활한 서비스 이용을 위해 사용자 정보 등록 페이지로 이동합니다.\n문제가 지속될 경우 고객센터로 문의 바랍니다.', [{ text: '확인', onPress: () => router.replace('/(auth)') }]);
     }, [router]);
 
     return {

@@ -38,25 +38,25 @@ export function ConfirmModal({ isVisible, onClose, onConfirm, data }: FortuneMod
             </View>
             <View style={styles.modalButtons}>
                 <Pressable
-                    style={[styles.modalButton, { backgroundColor: '#DCCEF7' }]}
+                    style={[styles.modalButton, styles.cancelButton]}
                     onPress={onClose}
                 >
                     <Typography
                         size="base"
                         bold
                         text="닫기"
-                        style={styles.modalButtonText}
+                        style={styles.cancelButtonText}
                     />
                 </Pressable>
                 <Pressable
-                    style={styles.modalButton}
+                    style={[styles.modalButton, styles.confirmButton]}
                     onPress={onConfirm}
                 >
                     <Typography
                         size="base"
                         bold
                         text={confirmButtonText}
-                        style={styles.modalButtonText}
+                        style={styles.confirmButtonText}
                     />
                 </Pressable>
             </View>
@@ -96,7 +96,18 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
     },
-    modalButtonText: {
+    cancelButton: {
+        backgroundColor: 'white',
+        borderWidth: 1,
+        borderColor: PrimaryColor,
+    },
+    cancelButtonText: {
+        color: PrimaryColor,
+    },
+    confirmButton: {
+        backgroundColor: PrimaryColor,
+    },
+    confirmButtonText: {
         color: 'white',
     },
 });

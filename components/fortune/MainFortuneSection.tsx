@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 
 import { useModalManager } from '@/hooks/useModalManager';
-import useUserInfo from '@/hooks/useUserInfo';
+import { useUserInfo } from '@/hooks/useUserInfo';
 
 import { Typography } from '@/components/ui/Typography';
 import { DonutChart } from '@/components/ui/DonutChart';
@@ -44,7 +44,7 @@ export function MainFortuneSection() {
                         size="xl"
                         style={styles.titleText}
                         bold
-                        text={`${userInfo.name}님,`}
+                        text={`${userInfo.name}님`}
                     />
                     <Typography
                         size="xl"

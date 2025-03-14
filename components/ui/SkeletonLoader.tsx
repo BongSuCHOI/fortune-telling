@@ -52,11 +52,11 @@ export const SkeletonLoader: React.FC<SkeletonProps> = ({ width, height, borderR
     );
 };
 
-interface FortuneSkeletonProps {
+interface SkeletonUiProps {
     style?: ViewStyle;
 }
 
-export const FortuneSkeletonUI: React.FC<FortuneSkeletonProps> = ({ style }) => {
+export const FortuneSkeletonUI: React.FC<SkeletonUiProps> = ({ style }) => {
     return (
         <View style={[styles.container, style]}>
             {/* 타이틀 영역 스켈레톤 */}
@@ -112,6 +112,178 @@ export const FortuneSkeletonUI: React.FC<FortuneSkeletonProps> = ({ style }) => 
     );
 };
 
+export const SajuSkeletonUI: React.FC<SkeletonUiProps> = ({ style }) => {
+    return (
+        <View style={[styles.container, style]}>
+            {/* 사주 페이지 헤더 스켈레톤 */}
+            <View style={styles.sajuHeaderContainer}>
+                <SkeletonLoader
+                    width={120}
+                    height={30}
+                    style={styles.titleSkeleton}
+                />
+                <SkeletonLoader
+                    width={220}
+                    height={24}
+                    style={styles.subtitleSkeleton}
+                />
+                <SkeletonLoader
+                    width={220}
+                    height={24}
+                    style={styles.subtitleSkeleton}
+                />
+            </View>
+
+            {/* 사주 서비스 카드 스켈레톤 */}
+            <View style={styles.sajuServicesContainer}>
+                {/* 서비스 카드 1 */}
+                <View style={styles.serviceCardSkeleton}>
+                    <View style={styles.serviceIconSkeleton}>
+                        <SkeletonLoader
+                            width={60}
+                            height={60}
+                            borderRadius={30}
+                        />
+                    </View>
+                    <View style={styles.serviceContentSkeleton}>
+                        <View>
+                            <SkeletonLoader
+                                width={100}
+                                height={22}
+                                style={styles.serviceNameSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={180}
+                                height={18}
+                                style={styles.serviceDescSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={80}
+                                height={20}
+                                borderRadius={10}
+                                style={styles.freeButtonSkeleton}
+                            />
+                        </View>
+                        <SkeletonLoader
+                            width={70}
+                            height={30}
+                            borderRadius={15}
+                        />
+                    </View>
+                </View>
+
+                {/* 서비스 카드 2 */}
+                <View style={styles.serviceCardSkeleton}>
+                    <View style={styles.serviceIconSkeleton}>
+                        <SkeletonLoader
+                            width={60}
+                            height={60}
+                            borderRadius={30}
+                        />
+                    </View>
+                    <View style={styles.serviceContentSkeleton}>
+                        <View>
+                            <SkeletonLoader
+                                width={90}
+                                height={22}
+                                style={styles.serviceNameSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={200}
+                                height={18}
+                                style={styles.serviceDescSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={80}
+                                height={20}
+                                borderRadius={10}
+                                style={styles.freeButtonSkeleton}
+                            />
+                        </View>
+                        <SkeletonLoader
+                            width={70}
+                            height={30}
+                            borderRadius={15}
+                        />
+                    </View>
+                </View>
+
+                {/* 서비스 카드 3 */}
+                <View style={styles.serviceCardSkeleton}>
+                    <View style={styles.serviceIconSkeleton}>
+                        <SkeletonLoader
+                            width={60}
+                            height={60}
+                            borderRadius={30}
+                        />
+                    </View>
+                    <View style={styles.serviceContentSkeleton}>
+                        <View>
+                            <SkeletonLoader
+                                width={110}
+                                height={22}
+                                style={styles.serviceNameSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={190}
+                                height={18}
+                                style={styles.serviceDescSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={80}
+                                height={20}
+                                borderRadius={10}
+                                style={styles.freeButtonSkeleton}
+                            />
+                        </View>
+                        <SkeletonLoader
+                            width={70}
+                            height={30}
+                            borderRadius={15}
+                        />
+                    </View>
+                </View>
+
+                {/* 서비스 카드 4 */}
+                <View style={styles.serviceCardSkeleton}>
+                    <View style={styles.serviceIconSkeleton}>
+                        <SkeletonLoader
+                            width={60}
+                            height={60}
+                            borderRadius={30}
+                        />
+                    </View>
+                    <View style={styles.serviceContentSkeleton}>
+                        <View>
+                            <SkeletonLoader
+                                width={100}
+                                height={22}
+                                style={styles.serviceNameSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={185}
+                                height={18}
+                                style={styles.serviceDescSkeleton}
+                            />
+                            <SkeletonLoader
+                                width={80}
+                                height={20}
+                                borderRadius={10}
+                                style={styles.freeButtonSkeleton}
+                            />
+                        </View>
+                        <SkeletonLoader
+                            width={70}
+                            height={30}
+                            borderRadius={15}
+                        />
+                    </View>
+                </View>
+            </View>
+        </View>
+    );
+};
+
 const styles = StyleSheet.create({
     container: {
         justifyContent: 'center',
@@ -143,5 +315,48 @@ const styles = StyleSheet.create({
     },
     buttonSkeleton: {
         marginTop: 30,
+    },
+    // 사주 스켈레톤 UI 관련 스타일
+    sajuHeaderContainer: {
+        alignItems: 'center',
+        marginBottom: 30,
+        width: '100%',
+        paddingHorizontal: 20,
+    },
+    subtitleSkeleton: {
+        marginTop: 6,
+    },
+    sajuServicesContainer: {
+        width: '100%',
+        paddingHorizontal: 25,
+        gap: 15,
+    },
+    serviceCardSkeleton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 15,
+        borderColor: '#D1C4E9',
+        borderWidth: 1,
+    },
+    serviceIconSkeleton: {
+        marginRight: 16,
+    },
+    serviceContentSkeleton: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    serviceNameSkeleton: {
+        marginBottom: 8,
+    },
+    serviceDescSkeleton: {
+        marginBottom: 8,
+    },
+    freeButtonSkeleton: {
+        marginTop: 8,
     },
 });

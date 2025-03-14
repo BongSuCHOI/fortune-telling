@@ -23,6 +23,8 @@ const MAPPING = {
     'lock.fill': 'lock',
     'clock.fill': 'access-time-filled',
     calendar: 'calendar-month',
+    'checkmark.circle.fill': 'check-circle',
+    'play.circle': 'play-circle-outline',
 } as Partial<Record<import('expo-symbols').SymbolViewProps['name'], React.ComponentProps<typeof MaterialIcons>['name']>>;
 
 export type IconSymbolName = keyof typeof MAPPING;

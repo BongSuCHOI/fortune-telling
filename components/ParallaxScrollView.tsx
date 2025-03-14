@@ -11,7 +11,7 @@ interface ParallaxScrollViewProps {
     children: React.ReactNode;
 }
 
-export default function ParallaxScrollView({ children, containerStyle, contentsStyle }: ParallaxScrollViewProps) {
+export function ParallaxScrollView({ children, containerStyle, contentsStyle }: ParallaxScrollViewProps) {
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const bottom = useBottomTabOverflow();
 
@@ -41,3 +41,5 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
 });
+
+export default ParallaxScrollView;
