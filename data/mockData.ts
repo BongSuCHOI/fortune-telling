@@ -11,27 +11,27 @@ export const MOCK_DAILY_TOTAL_FORTUNE_DATA: DailyTotalFortuneData = {
 };
 
 export const MOCK_DAILY_OTHER_FORTUNE_DATA: DailyOtherFortuneData = {
-    love: {
+    dailyLoveFortune: {
         title: '애정충만(愛情充滿)',
         score: 85,
         explanation: '오늘은 연애운이 상승하는 날입니다. 싱글이라면 새로운 인연이 다가올 가능성이 크고, 연인과의 관계도 더욱 깊어질 수 있습니다. 다만 지나친 감정 표현은 오히려 부담을 줄 수 있으니 균형을 유지하세요.',
     },
-    money: {
+    dailyMoneyFortune: {
         title: '재물변동(財物變動)',
         score: 60,
         explanation: '재정 상태에 변동이 있을 수 있습니다. 수입이 늘어날 가능성도 있지만, 예상치 못한 지출이 발생할 수도 있습니다. 계획적인 소비가 중요한 날이므로 충동적인 지출을 삼가고 예산을 점검하세요.',
     },
-    business: {
+    dailyBusinessFortune: {
         title: '기회포착(機會捕捉)',
         score: 75,
         explanation: '사업 및 직장운이 상승하는 날입니다. 새로운 기회가 찾아올 가능성이 높고, 기존 업무에서도 성과를 거둘 수 있습니다. 다만 경쟁이 치열할 수 있으니 신중한 판단이 필요합니다.',
     },
-    study: {
+    dailyStudyFortune: {
         title: '집중필요(集中必要)',
         score: 55,
         explanation: '공부운이 다소 하락하는 날입니다. 집중력이 흐트러질 수 있으니 계획을 잘 세우고 실천하는 것이 중요합니다. 외부의 유혹을 경계하고 목표를 분명히 하면 좋은 결과를 얻을 수 있습니다.',
     },
-    health: {
+    dailyHealthFortune: {
         title: '균형유지(均衡維持)',
         score: 70,
         explanation: '건강 상태는 비교적 양호하지만 지나친 무리는 피하는 것이 좋습니다. 규칙적인 생활 습관을 유지하고 가벼운 운동을 병행하면 더욱 활력 있는 하루를 보낼 수 있습니다.',
@@ -39,7 +39,7 @@ export const MOCK_DAILY_OTHER_FORTUNE_DATA: DailyOtherFortuneData = {
 };
 
 export const MOCK_YEAR_FORTUNE_DATA: SpecialFortuneData = {
-    year: {
+    specialYearFortune: {
         title: '기회존재(機會存在)',
         score: 72,
         summary: '변화 속 기회를 잡아야 할 시기',
@@ -49,7 +49,7 @@ export const MOCK_YEAR_FORTUNE_DATA: SpecialFortuneData = {
 };
 
 export const MOCK_MONTH_FORTUNE_DATA: SpecialFortuneData = {
-    month: {
+    specialMonthFortune: {
         title: '진퇴양난(進退兩難)',
         score: 64,
         summary: '결정을 내리기 어려운 시기',
@@ -59,7 +59,7 @@ export const MOCK_MONTH_FORTUNE_DATA: SpecialFortuneData = {
 };
 
 export const MOCK_WEEK_FORTUNE_DATA: SpecialFortuneData = {
-    week: {
+    specialWeekFortune: {
         title: '우유부단(優柔不斷)',
         score: 62,
         summary: '결정을 내리기 어려운 한 주',

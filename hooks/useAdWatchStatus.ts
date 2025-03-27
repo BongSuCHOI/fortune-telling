@@ -2,14 +2,15 @@ import { useCallback, useEffect } from 'react';
 import useAsyncStorage from '@/hooks/useAsyncStorage';
 import { AdWatchedState, AdWatchInfo, AdWatchPeriod } from '@/types/storage';
 
-// 여기 페이지 이거 테스트 해야함
-
 /**
  * 광고 시청 상태를 관리하는 훅
  * 주기별(일별, 주별, 월별, 영구) 광고 시청 상태를 관리
  */
-export function useAdWatchStatus<T extends string>(categories: T[], defaultPeriod: AdWatchPeriod = 'daily') {
-    const { data: adWatchedData, updateData, refreshData } = useAsyncStorage('AdWatched');
+export function useAdWatchStatus<T extends string>(categories: T[]) {
+    const { data: adWatchedData, updateData, refreshData, removeData } = useAsyncStorage('AdWatched');
+
+    // console.log(adWatchedData);
+    // removeData();
 
     // 현재 시간 기준으로 광고 시청 상태가 유효한지 검사하는 함수
     const isAdWatchValid = useCallback((adInfo?: AdWatchInfo): boolean => {
@@ -33,6 +34,11 @@ export function useAdWatchStatus<T extends string>(categories: T[], defaultPerio
                 // 한달 지났는지 확인 (30일)
                 const oneMonthMs = 30 * 24 * 60 * 60 * 1000;
                 return now - watchedTime < oneMonthMs;
+
+            case 'yearly':
+                // 1년 지났는지 확인 (365일)
+                const oneYearMs = 365 * 24 * 60 * 60 * 1000;
+                return now - watchedTime < oneYearMs;
 
             case 'permanent':
                 // 영구적으로 유효
@@ -79,7 +85,7 @@ export function useAdWatchStatus<T extends string>(categories: T[], defaultPerio
 
     // 특정 카테고리의 광고 시청 상태를 변경하는 함수
     const markAdWatched = useCallback(
-        (category: T, period: AdWatchPeriod = defaultPeriod) => {
+        (category: T, period: AdWatchPeriod) => {
             const adInfo: AdWatchInfo = {
                 watched: true,
                 watchedAt: Date.now(),
@@ -88,7 +94,7 @@ export function useAdWatchStatus<T extends string>(categories: T[], defaultPerio
             const updatedData: Partial<AdWatchedState> = { [category]: adInfo };
             updateData(updatedData);
         },
-        [updateData, defaultPeriod]
+        [updateData]
     );
 
     // 특정 카테고리의 광고 시청 주기를 변경하는 함수
@@ -109,27 +115,31 @@ export function useAdWatchStatus<T extends string>(categories: T[], defaultPerio
 
     // 모든 광고 시청 상태를 초기화하는 함수
     const resetAdWatchedStatus = useCallback(() => {
+        if (!adWatchedData) return;
+
         const resetData = categories.reduce((acc, category) => {
             acc[category] = {
                 watched: false,
-                period: defaultPeriod,
+                period: adWatchedData[category].period,
             };
             return acc;
         }, {} as Record<string, AdWatchInfo>);
         updateData(resetData);
-    }, [categories, updateData, defaultPeriod]);
+    }, [categories, updateData]);
 
     // 특정 카테고리의 광고 시청 상태 초기화
     const resetCategoryAdWatched = useCallback(
         (category: T) => {
+            if (!adWatchedData) return;
+
             const resetInfo: AdWatchInfo = {
                 watched: false,
-                period: adWatchedData?.[category]?.period || defaultPeriod,
+                period: adWatchedData[category].period,
             };
             const updatedData: Partial<AdWatchedState> = { [category]: resetInfo };
             updateData(updatedData);
         },
-        [adWatchedData, updateData, defaultPeriod]
+        [adWatchedData, updateData]
     );
 
     return {

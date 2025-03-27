@@ -14,16 +14,17 @@ import { SecondaryColor, SubTextColor } from '@/constants/Colors';
 import { MOCK_YEAR_FORTUNE_DATA, MOCK_MONTH_FORTUNE_DATA, MOCK_WEEK_FORTUNE_DATA } from '@/data/mockData';
 
 import type { SpecialFortuneCode, SpecialFortuneName, SpecialFortuneItem } from '@/types/fortune';
+import type { AdWatchPeriod } from '@/types/storage';
 import type { ConfirmModalData } from '@/types/modal';
 
-const YEAR = 'year';
-const MONTH = 'month';
-const WEEK = 'week';
+const SPECIAL_YEAR_FORTUNE_AD_KEY: SpecialFortuneCode = 'specialYearFortune';
+const SPECIAL_MONTH_FORTUNE_AD_KEY: SpecialFortuneCode = 'specialMonthFortune';
+const SPECIAL_WEEK_FORTUNE_AD_KEY: SpecialFortuneCode = 'specialWeekFortune';
 
 const SPECIAL_FORTUNE_ITEM_DATA: SpecialFortuneItem[] = [
-    { category: YEAR, name: '올해', icon: 'star.fill', iconColor: SecondaryColor, description: '새해의 운세' },
-    { category: MONTH, name: '이번 달', icon: 'calendar', iconColor: SecondaryColor, description: '월간 운세' },
-    { category: WEEK, name: '이번 주', icon: 'clock.fill', iconColor: SecondaryColor, description: '주간 운세' },
+    { category: SPECIAL_YEAR_FORTUNE_AD_KEY, name: '올해', adPeriod: 'yearly', icon: 'star.fill', iconColor: SecondaryColor, description: '새해의 운세' },
+    { category: SPECIAL_MONTH_FORTUNE_AD_KEY, name: '이번 달', adPeriod: 'monthly', icon: 'calendar', iconColor: SecondaryColor, description: '월간 운세' },
+    { category: SPECIAL_WEEK_FORTUNE_AD_KEY, name: '이번 주', adPeriod: 'weekly', icon: 'clock.fill', iconColor: SecondaryColor, description: '주간 운세' },
 ];
 
 const CONFIRM_MODAL_DATA: ConfirmModalData = {
@@ -32,9 +33,15 @@ const CONFIRM_MODAL_DATA: ConfirmModalData = {
     confirmButtonText: '시청하기',
 };
 
-const AD_MODAL_KEY = 'specialAd';
-const FORTUNE_MODAL_KEY = 'specialFortune';
+const AD_CONFIRM_MODAL_KEY = 'specialConfirmAd';
+const FORTUNE_CONTENT_MODAL_KEY = 'specialFortuneContent';
 
+/**
+ * 특별 운세는 연도, 월, 주 단위로 나뉘어져 있으며,
+ * 각각의 운세를 확인하기 위해 년/월/주 마다 1회씩 개별 광고 시청이 필요합니다.
+ * 년/월/주 마다 각각의 운세를 확인하기 위해 광고 시청이 필요합니다.
+ * 광고 시청 후 운세를 확인할 수 있는 모달을 띄우는 컴포넌트입니다.
+ */
 export function SpecialFortuneSection() {
     // 모달 상태 관리
     const { modalVisibility, openModal, closeModal } = useModalManager();
@@ -43,18 +50,18 @@ export function SpecialFortuneSection() {
     const { selectedFortune, selectFortune, resetSelection } = useFortuneSelection<SpecialFortuneCode, SpecialFortuneName>();
 
     // 카테고리별 광고 상태
-    const { adWatched, markAdWatched } = useAdWatchStatus<SpecialFortuneCode>([YEAR, MONTH, WEEK]);
+    const { adWatched, markAdWatched } = useAdWatchStatus<SpecialFortuneCode>([SPECIAL_YEAR_FORTUNE_AD_KEY, SPECIAL_MONTH_FORTUNE_AD_KEY, SPECIAL_WEEK_FORTUNE_AD_KEY]);
 
     // 선택된 운세에 따른 운세 데이터 결정
     const fortuneData = useMemo(() => {
         if (!selectedFortune) return null;
         const { category } = selectedFortune;
         switch (category) {
-            case YEAR:
+            case SPECIAL_YEAR_FORTUNE_AD_KEY:
                 return MOCK_YEAR_FORTUNE_DATA[category];
-            case MONTH:
+            case SPECIAL_MONTH_FORTUNE_AD_KEY:
                 return MOCK_MONTH_FORTUNE_DATA[category];
-            case WEEK:
+            case SPECIAL_WEEK_FORTUNE_AD_KEY:
                 return MOCK_WEEK_FORTUNE_DATA[category];
             default:
                 return null;
@@ -62,18 +69,18 @@ export function SpecialFortuneSection() {
     }, [selectedFortune]);
 
     // 운세 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
-    const onFortunePressed = (category: SpecialFortuneCode, name: SpecialFortuneName) => {
-        selectFortune({ category, name });
+    const onFortunePressed = (category: SpecialFortuneCode, name: SpecialFortuneName, adPeriod: AdWatchPeriod) => {
+        selectFortune({ category, name, adPeriod });
         if (adWatched[category]) {
-            openModal(FORTUNE_MODAL_KEY);
+            openModal(FORTUNE_CONTENT_MODAL_KEY);
         } else {
-            openModal(AD_MODAL_KEY);
+            openModal(AD_CONFIRM_MODAL_KEY);
         }
     };
 
     // 광고 확인 모달 "시청하기" 클릭 시 처리 (보상형 광고 로직 호출)
     const onConfirmAd = async () => {
-        closeModal(AD_MODAL_KEY);
+        closeModal(AD_CONFIRM_MODAL_KEY);
         try {
             // 구글 보상형 AdMob 로직 호출 (예: 광고 로드 및 표시)
             // 실제 구현 시 AdMob SDK와 연동하는 showRewardedAd 함수 호출
@@ -81,8 +88,8 @@ export function SpecialFortuneSection() {
             const reward = true; // 테스트를 위한 더미 값
 
             if (reward && selectedFortune) {
-                markAdWatched(selectedFortune.category);
-                openModal(FORTUNE_MODAL_KEY);
+                markAdWatched(selectedFortune.category, selectedFortune.adPeriod);
+                openModal(FORTUNE_CONTENT_MODAL_KEY);
             }
         } catch (error) {
             console.error('광고 시청 실패', error);
@@ -91,13 +98,13 @@ export function SpecialFortuneSection() {
 
     // 광고 모달 닫기 (취소) 및 상태 초기화
     const onCloseAdModal = () => {
-        closeModal(AD_MODAL_KEY);
+        closeModal(AD_CONFIRM_MODAL_KEY);
         resetSelection();
     };
 
     // 운세 결과 모달 닫기 및 상태 초기화
     const onCloseFortuneModal = () => {
-        closeModal(FORTUNE_MODAL_KEY);
+        closeModal(FORTUNE_CONTENT_MODAL_KEY);
         resetSelection();
     };
 
@@ -112,11 +119,11 @@ export function SpecialFortuneSection() {
                     text={'특별 운세'}
                 />
                 <View style={styles.specialFortuneContents}>
-                    {SPECIAL_FORTUNE_ITEM_DATA.map(({ category, name, icon, iconColor, description }) => (
+                    {SPECIAL_FORTUNE_ITEM_DATA.map(({ category, adPeriod, name, icon, iconColor, description }) => (
                         <Pressable
                             key={category}
                             style={styles.specialFortuneButton}
-                            onPress={() => onFortunePressed(category, name)}
+                            onPress={() => onFortunePressed(category, name, adPeriod)}
                         >
                             <View style={styles.specialFortuneIconContents}>
                                 <IconSymbol
@@ -145,7 +152,7 @@ export function SpecialFortuneSection() {
 
             {/* 특별 운세 광고 확인 모달 */}
             <ConfirmModal
-                isVisible={modalVisibility[AD_MODAL_KEY] || false}
+                isVisible={modalVisibility[AD_CONFIRM_MODAL_KEY] || false}
                 onClose={onCloseAdModal}
                 onConfirm={onConfirmAd}
                 data={CONFIRM_MODAL_DATA}
@@ -154,7 +161,7 @@ export function SpecialFortuneSection() {
             {/* 특별 운세 결과 모달 */}
             {fortuneData && (
                 <FortuneModal
-                    isVisible={modalVisibility[FORTUNE_MODAL_KEY] || false}
+                    isVisible={modalVisibility[FORTUNE_CONTENT_MODAL_KEY] || false}
                     onClose={onCloseFortuneModal}
                     pointText={`${selectedFortune?.name || ''} 운세`}
                     data={fortuneData}

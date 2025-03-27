@@ -15,7 +15,7 @@ export interface UserInfo {
 }
 
 // 광고 시청 주기 타입 정의
-export type AdWatchPeriod = 'daily' | 'weekly' | 'monthly' | 'permanent';
+export type AdWatchPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'permanent';
 
 // 광고 시청 정보 타입 정의
 export interface AdWatchInfo {
