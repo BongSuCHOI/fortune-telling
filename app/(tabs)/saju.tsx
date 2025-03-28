@@ -4,6 +4,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 import { useModalManager } from '@/hooks/useModalManager';
 import { useUserInfo } from '@/hooks/useUserInfo';
 import { usePurchaseHistory } from '@/hooks/usePurchaseHistory';
+import { useFortuneSelection } from '@/hooks/useFortuneSelection';
 import { useAdWatchStatus } from '@/hooks/useAdWatchStatus'; // 추가: 광고 시청 상태 관리 훅
 
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
@@ -15,14 +16,14 @@ import { ConfirmModal } from '@/components/modal/ConfirmModal'; // 추가: 광�
 import { FortuneModal } from '@/components/modal/FortuneModal'; // 추가: 운세 결과 모달
 import { PrimaryColor, SubTextColor } from '@/constants/Colors';
 
-import type { SajuItem } from '@/types/saju';
+import type { SajuItemCode, SajuItem } from '@/types/saju';
 import type { FortuneData } from '@/types/fortune'; // 추가: 운세 데이터 타입
 import type { ConfirmModalData } from '@/types/modal'; // 추가: 확인 모달 데이터 타입
 
-// 사주 광고 관련 상수
-const AD_MODAL_KEY = 'sajuAd';
-const PREVIEW_MODAL_KEY = 'sajuPreview';
-const SAJU_PREVIEW_AD_KEY = 'sajuAd_';
+const SAJU_TRADITIONAL_AD_KEY: SajuItemCode = 'sajuTraditional';
+const SAJU_COMPATIBILITY_AD_KEY: SajuItemCode = 'sajuCompatibility';
+const SAJU_CAREER_AD_KEY: SajuItemCode = 'sajuCareer';
+const SAJU_YEARLY_AD_KEY: SajuItemCode = 'sajuYearly';
 
 // 광고 확인 모달 데이터
 const CONFIRM_MODAL_DATA: ConfirmModalData = {
@@ -32,23 +33,23 @@ const CONFIRM_MODAL_DATA: ConfirmModalData = {
 };
 
 // 사주별 무료 요약 정보 (광고 시청 후 보여줄 데이터)
-const SAJU_PREVIEW_DATA: Record<string, FortuneData> = {
-    traditional: {
+const SAJU_PREVIEW_DATA: Record<SajuItemCode, FortuneData> = {
+    sajuTraditional: {
         title: '정통사주 간단 미리보기',
         explanation: '당신의 사주에는 특별한 성격과 재능의 기운이 보입니다. 재능을 발휘하면 큰 성취를 이룰 수 있으나, 좀 더 깊은 분석이 필요합니다. 상세한 사주 분석을 통해 자신의 운명을 완전히 이해하실 수 있습니다.',
         score: 75,
     },
-    compatibility: {
+    sajuCompatibility: {
         title: '궁합사주 간단 미리보기',
         explanation: '두 분의 궁합에는 흥미로운 상호작용이 보입니다. 서로를 보완하는 부분도 있고 도전이 필요한 부분도 있습니다. 상세 분석을 통해 더 행복한 관계를 위한 인사이트를 얻으실 수 있습니다.',
         score: 70,
     },
-    career: {
+    sajuCareer: {
         title: '직업사주 간단 미리보기',
         explanation: '당신은 특정 분야에서 뛰어난 재능을 가진 것으로 보입니다. 직업과 관련된 운의 흐름이 보이며, 적합한 직업 방향이 암시됩니다. 상세 분석을 통해 정확한 직업 방향과 시기를 알아보세요.',
         score: 80,
     },
-    yearly: {
+    sajuYearly: {
         title: '연간사주 간단 미리보기',
         explanation: '올해는 당신에게 중요한 변화의 시기가 될 것으로 보입니다. 특히 특정 월에 기회와 도전이 함께 찾아올 수 있습니다. 월별 상세 분석을 통해 올해를 더 현명하게 준비하세요.',
         score: 65,
@@ -58,8 +59,9 @@ const SAJU_PREVIEW_DATA: Record<string, FortuneData> = {
 // 사주 서비스 아이템 데이터
 const SAJU_SERVICE_DATA: SajuItem[] = [
     {
-        code: 'traditional',
+        code: SAJU_TRADITIONAL_AD_KEY,
         name: '정통사주',
+        adPeriod: 'permanent',
         description: '사주팔자를 통한 정확한 운세 분석',
         modalDescription: [
             '사주팔자는 태어난 년, 월, 일, 시를 기준으로 천간과 지지를 조합하여 사람의 운명을 풀이하는 동양철학의 핵심입니다.',
@@ -73,8 +75,9 @@ const SAJU_SERVICE_DATA: SajuItem[] = [
         purchaseType: 'permanent', // 영구 구매 상품
     },
     {
-        code: 'compatibility',
+        code: SAJU_COMPATIBILITY_AD_KEY,
         name: '궁합사주',
+        adPeriod: 'permanent',
         description: '연인과의 운명적 궁합을 분석',
         modalDescription: [
             '궁합사주는 두 사람의 사주를 바탕으로 관계의 강점과 약점을 분석합니다.',
@@ -88,8 +91,9 @@ const SAJU_SERVICE_DATA: SajuItem[] = [
         purchaseType: 'single-use', // 일회성 구매 상품
     },
     {
-        code: 'career',
+        code: SAJU_CAREER_AD_KEY,
         name: '직업사주',
+        adPeriod: 'permanent',
         description: '최적의 직업 방향과 시기 분석',
         modalDescription: [
             '직업사주는 당신의 타고난 재능과 적성에 맞는 직업군을 분석하고, 직업 운의 흐름을 풀이합니다.',
@@ -103,8 +107,9 @@ const SAJU_SERVICE_DATA: SajuItem[] = [
         purchaseType: 'annual', // 연간 갱신 상품
     },
     {
-        code: 'yearly',
+        code: SAJU_YEARLY_AD_KEY,
         name: '연간사주',
+        adPeriod: 'permanent',
         description: '올해의 운세와 흐름을 분석',
         modalDescription: [
             '연간사주는 올해의 운세를 월별로 상세히 분석하여 한 해 동안의 기회와 도전을 미리 파악할 수 있게 해줍니다.',
@@ -119,6 +124,12 @@ const SAJU_SERVICE_DATA: SajuItem[] = [
     },
 ];
 
+// 사주 광고 관련 상수
+const AD_CONFIRM_MODAL_KEY = 'sajuConfirmAd';
+const SAJU_PREVIEW_MODAL_KEY = 'sajuPreview';
+const SAJU_DETAIL_MODAL_KEY = SAJU_DETAIL_MODAL_KEY;
+const SAJU_PAYMENT_MODAL_KEY = 'sajuPayment';
+
 export default function SajuScreen() {
     // 사용자 정보 관리 훅
     const { userInfo, loading, redirectIfUserInfoMissing } = useUserInfo();
@@ -130,10 +141,10 @@ export default function SajuScreen() {
     const { modalVisibility, openModal, closeModal } = useModalManager();
 
     // 광고 시청 상태 관리 훅
-    const adCategories = SAJU_SERVICE_DATA.map((service) => `${SAJU_PREVIEW_AD_KEY}${service.code}`);
-    const { adWatched, markAdWatched, resetAdWatchedStatus } = useAdWatchStatus<(typeof adCategories)[number]>(adCategories);
+    const { adWatched, markAdWatched, resetAdWatchedStatus } = useAdWatchStatus<SajuItemCode>([SAJU_TRADITIONAL_AD_KEY, SAJU_COMPATIBILITY_AD_KEY, SAJU_CAREER_AD_KEY, SAJU_YEARLY_AD_KEY]);
 
     // 선택된 사주 서비스
+    // ** useFortuneSelection hook이랑 통합 가능해보임 **
     const [selectedService, setSelectedService] = useState<SajuItem | null>(null);
 
     // 선택된 미리보기 서비스 (광고 시청용)
@@ -148,12 +159,12 @@ export default function SajuScreen() {
     // 서비스 선택 처리 함수
     const handleServicePress = (service: SajuItem) => {
         setSelectedService(service);
-        openModal('sajuDetail');
+        openModal(SAJU_DETAIL_MODAL_KEY);
     };
 
     // 결제 처리 함수 (실제 구현은 결제 모듈 연동 필요)
     const handlePayment = () => {
-        closeModal('sajuDetail');
+        closeModal(SAJU_DETAIL_MODAL_KEY);
 
         if (selectedService) {
             // 구매 완료 처리
@@ -161,7 +172,7 @@ export default function SajuScreen() {
         }
 
         // 결제 성공 모달 표시
-        openModal('paymentSuccess');
+        openModal(SAJU_PAYMENT_MODAL_KEY);
 
         // 실제로는 결제 처리 후 API 호출하여 결과 받아오기
         // ...
@@ -169,7 +180,7 @@ export default function SajuScreen() {
 
     // 결제 성공 모달 닫기
     const handlePaymentSuccessClose = () => {
-        closeModal('paymentSuccess');
+        closeModal(SAJU_PAYMENT_MODAL_KEY);
         setSelectedService(null);
     };
 
@@ -179,12 +190,12 @@ export default function SajuScreen() {
             code: service.code,
             name: service.name,
         });
-        openModal(AD_MODAL_KEY);
+        openModal(AD_CONFIRM_MODAL_KEY); 
     };
 
     // 광고 확인 모달에서 광고 시청 동의
     const onConfirmAd = async () => {
-        closeModal(AD_MODAL_KEY);
+        closeModal(AD_CONFIRM_MODAL_KEY);
 
         try {
             // 구글 보상형 AdMob 로직 호출 (예: 광고 로드 및 표시)
@@ -195,7 +206,7 @@ export default function SajuScreen() {
             if (reward && selectedPreview) {
                 const adKey = `${SAJU_PREVIEW_AD_KEY}${selectedPreview.code}` as (typeof adCategories)[number];
                 markAdWatched(adKey);
-                openModal(PREVIEW_MODAL_KEY);
+                openModal(SAJU_PREVIEW_MODAL_KEY);
             }
         } catch (error) {
             console.error('광고 시청 실패', error);
@@ -204,13 +215,13 @@ export default function SajuScreen() {
 
     // 광고 모달 닫기 (취소) 및 상태 초기화
     const onCloseAdModal = () => {
-        closeModal(AD_MODAL_KEY);
+        closeModal(AD_CONFIRM_MODAL_KEY);
         setSelectedPreview(null);
     };
 
     // 미리보기 모달 닫기 및 상태 초기화
     const onClosePreviewModal = () => {
-        closeModal(PREVIEW_MODAL_KEY);
+        closeModal(SAJU_PREVIEW_MODAL_KEY);
         setSelectedPreview(null);
     };
 
@@ -323,7 +334,7 @@ export default function SajuScreen() {
                                                     code: service.code,
                                                     name: service.name,
                                                 });
-                                                openModal(PREVIEW_MODAL_KEY);
+                                                openModal(SAJU_PREVIEW_MODAL_KEY);
                                             }}
                                         >
                                             <IconSymbol
@@ -367,8 +378,8 @@ export default function SajuScreen() {
             {selectedService && (
                 <ModalContainer
                     style={styles.detailModalContainer}
-                    isVisible={modalVisibility['sajuDetail'] || false}
-                    onClose={() => closeModal('sajuDetail')}
+                    isVisible={modalVisibility[SAJU_DETAIL_MODAL_KEY] || false}
+                    onClose={() => closeModal(SAJU_DETAIL_MODAL_KEY)}
                 >
                     <View style={styles.modalHeader}>
                         <IconSymbol
@@ -414,7 +425,7 @@ export default function SajuScreen() {
                     <View style={styles.modalButtonContainer}>
                         <Pressable
                             style={[styles.modalButton, styles.cancelButton]}
-                            onPress={() => closeModal('sajuDetail')}
+                            onPress={() => closeModal(SAJU_DETAIL_MODAL_KEY)}
                         >
                             <Typography
                                 size="base"
@@ -439,7 +450,7 @@ export default function SajuScreen() {
                             <Pressable
                                 style={[styles.modalButton, styles.viewButton]}
                                 onPress={() => {
-                                    closeModal('sajuDetail');
+                                    closeModal(SAJU_DETAIL_MODAL_KEY);
                                     // TODO: 결과 보기 기능 구현
                                 }}
                             >
@@ -457,7 +468,7 @@ export default function SajuScreen() {
 
             {/* 광고 확인 모달 */}
             <ConfirmModal
-                isVisible={modalVisibility[AD_MODAL_KEY] || false}
+                isVisible={modalVisibility[AD_CONFIRM_MODAL_KEY] || false}
                 onClose={onCloseAdModal}
                 onConfirm={onConfirmAd}
                 data={CONFIRM_MODAL_DATA}
@@ -466,7 +477,7 @@ export default function SajuScreen() {
             {/* 사주 미리보기 모달 */}
             {selectedPreview && (
                 <FortuneModal
-                    isVisible={modalVisibility[PREVIEW_MODAL_KEY] || false}
+                    isVisible={modalVisibility[SAJU_PREVIEW_MODAL_KEY] || false}
                     onClose={onClosePreviewModal}
                     text={selectedPreview.name}
                     pointText=" 무료 미리보기"
@@ -478,7 +489,7 @@ export default function SajuScreen() {
             {selectedService && (
                 <ModalContainer
                     style={styles.successModalContainer}
-                    isVisible={modalVisibility['paymentSuccess'] || false}
+                    isVisible={modalVisibility[SAJU_PAYMENT_MODAL_KEY] || false}
                     onClose={handlePaymentSuccessClose}
                 >
                     <View style={styles.successIconContainer}>
