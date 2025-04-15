@@ -1,0 +1,8 @@
+{
+    "servers": {
+        "fortune-telling Docs": {
+            "type": "sse",
+            "url": "https://gitmcp.io/BongSuCHOI/fortune-telling"
+        }
+    }
+}
