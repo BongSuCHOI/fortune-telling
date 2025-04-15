@@ -5,6 +5,7 @@ import { useUserInfo } from '@/hooks/useUserInfo';
 import { usePurchaseHistory } from '@/hooks/usePurchaseHistory';
 import { useServiceSelection } from '@/hooks/useServiceSelection';
 import { useAdManager } from '@/hooks/useAdManager';
+import Logger from '@/utils/Logger';
 
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { Typography } from '@/components/ui/Typography';
@@ -146,6 +147,8 @@ const SAJU_SERVICE_DATA: SajuItem[] = [
     },
 ];
 
+const TAG = 'SajuScreen';
+
 export default function SajuScreen() {
     // 사용자 정보 관리 훅
     const { userInfo, loading, redirectIfUserInfoMissing } = useUserInfo();
@@ -169,11 +172,17 @@ export default function SajuScreen() {
     const onConfirmAd = async () => {
         closeModal(SAJU_MODAL_KEYS.SAJU_AD_CONFIRM);
 
-        if (!selectedPreview) return;
+        if (!selectedPreview) {
+            Logger.error(TAG, '광고 시청 확인 시 선택된 서비스가 없습니다.');
+            return;
+        }
 
         const success = await requestAd(selectedPreview.category, selectedPreview.adPeriod);
         if (success) {
+            Logger.event(TAG, '광고 시청 완료', { service: selectedPreview.name, category: selectedPreview.category });
             openModal(SAJU_MODAL_KEYS.SAJU_PREVIEW);
+        } else {
+            Logger.error(TAG, '광고 시청 실패', { service: selectedPreview.name, category: selectedPreview.category });
         }
     };
 
@@ -182,8 +191,24 @@ export default function SajuScreen() {
         closeModal(SAJU_MODAL_KEYS.SAJU_DETAIL);
 
         if (selectedService) {
-            // 구매 완료 처리
-            updatePurchased(selectedService.category, selectedService.purchasePeriod);
+            try {
+                // 구매 완료 처리
+                updatePurchased(selectedService.category, selectedService.purchasePeriod);
+                Logger.event(TAG, '사주 구매 완료', {
+                    service: selectedService.name,
+                    category: selectedService.category,
+                });
+            } catch (error) {
+                Logger.error(TAG, '구매 처리 중 오류 발생', {
+                    error,
+                    service: selectedService.name,
+                    category: selectedService.category,
+                });
+                return;
+            }
+        } else {
+            Logger.error(TAG, '결제 처리 시 선택된 서비스가 없습니다.');
+            return;
         }
 
         // 결제 성공 모달 표시
@@ -204,6 +229,10 @@ export default function SajuScreen() {
 
     // 서비스 결과 열기
     const onOpenServiceResult = () => {
+        if (!selectedService) {
+            Logger.error(TAG, '결과 보기 시 선택된 서비스가 없습니다.');
+            return;
+        }
         closeModal(SAJU_MODAL_KEYS.SAJU_DETAIL);
         // 결과보기 구현 필요
         openModal(SAJU_MODAL_KEYS.SAJU_RESULT);
@@ -241,6 +270,7 @@ export default function SajuScreen() {
 
     // 사용자 정보가 없을 경우 리다이렉트
     if (!loading && !userInfo) {
+        Logger.warn(TAG, '사용자 정보 없음, 리다이렉트');
         redirectIfUserInfoMissing();
     }
 

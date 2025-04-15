@@ -1,7 +1,10 @@
 import { useCallback, useEffect } from 'react';
 import useAsyncStorage from '@/hooks/useAsyncStorage';
 import { hasTimeExpired } from '@/constants/TimeConstants';
+import Logger from '@/utils/Logger';
 import { AdWatchedState, AdWatchInfo, AdWatchPeriod } from '@/types/storage';
+
+const TAG = 'AdWatchStatus';
 
 /**
  * 광고 시청 상태를 관리하는 훅
@@ -16,7 +19,14 @@ export function useAdWatchStatus<T extends string>(categories: T[]) {
         if (!adInfo || !adInfo.watched) {
             return true;
         }
-        return hasTimeExpired(adInfo.watchedAt, adInfo.period);
+        const isExpired = hasTimeExpired(adInfo.watchedAt, adInfo.period);
+        if (isExpired) {
+            Logger.debug(TAG, `광고 시청 만료 확인: ${isExpired ? '만료됨' : '유효함'}`, {
+                period: adInfo.period,
+                watchedAt: new Date(adInfo.watchedAt).toISOString(),
+            });
+        }
+        return isExpired;
     }, []);
 
     // 주기가 경과한 광고 시청 상태 자동 초기화
@@ -40,6 +50,7 @@ export function useAdWatchStatus<T extends string>(categories: T[]) {
 
         // 만료된 상태가 있다면 업데이트
         if (needsUpdate) {
+            Logger.info(TAG, '만료된 광고 시청 상태 자동 갱신');
             updateData(updatedData);
         }
     }, [adWatchedData, hasAdWatchExpired, updateData]);
@@ -55,13 +66,21 @@ export function useAdWatchStatus<T extends string>(categories: T[]) {
     // 광고 시청 상태 업데이트
     const updateAdWatched = useCallback(
         (category: T, period: AdWatchPeriod) => {
+            Logger.info(TAG, `광고 시청 상태 업데이트: ${category}`, { period });
+
             const adInfo: AdWatchInfo = {
                 watched: true,
                 watchedAt: Date.now(),
                 period,
             };
             const updatedData: Partial<AdWatchedState> = { [category]: adInfo };
-            updateData(updatedData);
+
+            try {
+                updateData(updatedData);
+                Logger.event(TAG, '광고 시청 상태 업데이트 성공', { category, period });
+            } catch (error) {
+                Logger.error(TAG, `광고 시청 상태 업데이트 실패: ${category}`, { error });
+            }
         },
         [updateData]
     );

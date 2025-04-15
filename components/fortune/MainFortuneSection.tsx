@@ -12,7 +12,6 @@ import { FortuneModal } from '@/components/modal/FortuneModal';
 import { ConfirmModal } from '@/components/modal/ConfirmModal';
 import { PrimaryColor, SubTextColor } from '@/constants/Colors';
 import { FORTUNE_MODAL_KEYS } from '@/constants/ModalKeys';
-import { DAILY_FORTUNE_AD_KEYS } from '@/constants/AdKeys';
 
 import { MOCK_DAILY_TOTAL_FORTUNE_DATA } from '@/data/mockData';
 
@@ -23,6 +22,8 @@ const CONFIRM_MODAL_DATA: ConfirmModalData = {
     contents: '광고를 시청하시면 상세한 오늘의 총운 결과를 확인할 수 있습니다!',
     confirmButtonText: '시청하기',
 };
+
+const DAILY_TOTAL_FORTUNE_AD_KEY = 'dailyTotalFortuneAd';
 
 /**
  * 오늘의 메인 운세 섹션 컴포넌트
@@ -38,7 +39,7 @@ export function MainFortuneSection() {
     const { modalVisibility, openModal, closeModal } = useModalManager();
 
     // 광고 관리 훅
-    const { adWatched, requestAd, loading: adLoading } = useAdManager<typeof DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE>([DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE]);
+    const { adWatched, requestAd, loading: adLoading } = useAdManager<typeof DAILY_TOTAL_FORTUNE_AD_KEY>([DAILY_TOTAL_FORTUNE_AD_KEY]);
 
     // 운세 데이터
     const dailyFortuneData = useMemo(() => {
@@ -47,7 +48,7 @@ export function MainFortuneSection() {
 
     // 자세히 보기 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
     const onDetailViewPressed = () => {
-        if (adWatched[DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE]) {
+        if (adWatched[DAILY_TOTAL_FORTUNE_AD_KEY]) {
             openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_RESULT);
         } else {
             openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
@@ -58,7 +59,7 @@ export function MainFortuneSection() {
     const onConfirmAd = async () => {
         closeModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
 
-        const success = await requestAd(DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE, 'daily');
+        const success = await requestAd(DAILY_TOTAL_FORTUNE_AD_KEY, 'daily');
         if (success) {
             openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_RESULT);
         }

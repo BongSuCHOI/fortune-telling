@@ -2,8 +2,11 @@ import { useCallback, useEffect } from 'react';
 
 import useAsyncStorage from '@/hooks/useAsyncStorage';
 import { hasTimeExpired } from '@/constants/TimeConstants';
+import Logger from '@/utils/Logger';
 
 import type { PurchaseInfo, purchasePeriod, PurchaseHistoryState } from '@/types/storage';
+
+const TAG = 'PurchaseHistory';
 
 /**
  * 서비스 구매 내역을 관리하는 훅
@@ -13,15 +16,20 @@ import type { PurchaseInfo, purchasePeriod, PurchaseHistoryState } from '@/types
 export function usePurchaseHistory<T extends string>(categories: T[]) {
     const { data: purchaseHistory, updateData, refreshData, removeData } = useAsyncStorage('PurchaseHistory');
 
-    console.log(purchaseHistory);
-
     // 서비스 구매 상태 및 유효성 체크
     const hasPurchaseExpired = useCallback((purchaseInfo: PurchaseInfo): boolean => {
         if (!purchaseInfo || !purchaseInfo.purchased || !purchaseInfo.purchasedAt) {
             return false;
         }
 
-        return hasTimeExpired(purchaseInfo.purchasedAt, purchaseInfo.period);
+        const isExpired = hasTimeExpired(purchaseInfo.purchasedAt, purchaseInfo.period);
+        if (isExpired) {
+            Logger.debug(TAG, `구매 만료 확인: ${isExpired ? '만료됨' : '유효함'}`, {
+                period: purchaseInfo.period,
+                purchasedAt: new Date(purchaseInfo.purchasedAt).toISOString(),
+            });
+        }
+        return isExpired;
     }, []);
 
     // 주기가 경과한 구매 상태 자동 만료 처리
@@ -44,6 +52,7 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
 
         // 만료된 상태가 있다면 업데이트
         if (needsUpdate) {
+            Logger.info(TAG, '만료된 구매 상태 자동 갱신');
             updateData(updatedData);
         }
     }, [purchaseHistory, hasPurchaseExpired, updateData]);
@@ -59,6 +68,8 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
     // 서비스 구매 상태 업데이트
     const updatePurchased = useCallback(
         (serviceCode: T, period: purchasePeriod) => {
+            Logger.info(TAG, `서비스 구매 상태 업데이트: ${serviceCode}`, { period });
+
             const purchaseInfo: PurchaseInfo = {
                 purchased: true,
                 purchasedAt: Date.now(),
@@ -66,7 +77,13 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
             };
 
             const updatedData: Partial<PurchaseHistoryState> = { [serviceCode]: purchaseInfo };
-            updateData(updatedData);
+
+            try {
+                updateData(updatedData);
+                Logger.event(TAG, '구매 상태 업데이트 성공', { serviceCode, period });
+            } catch (error) {
+                Logger.error(TAG, '구매 상태 업데이트 실패', { serviceCode, period, error });
+            }
         },
         [updateData]
     );
@@ -74,7 +91,12 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
     // 특정 서비스의 구매 주기 변경
     const updatePurchasePeriod = useCallback(
         (serviceCode: string, period: purchasePeriod) => {
-            if (!purchaseHistory || !purchaseHistory[serviceCode]) return;
+            Logger.info(TAG, `구매 주기 변경: ${serviceCode}`, { newPeriod: period });
+
+            if (!purchaseHistory || !purchaseHistory[serviceCode]) {
+                Logger.warn(TAG, '구매 주기 변경 실패: 구매 정보 없음', { serviceCode });
+                return;
+            }
 
             const currentInfo = purchaseHistory[serviceCode];
             const updatedInfo: PurchaseInfo = {
@@ -83,7 +105,17 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
             };
 
             const updatedData: Partial<PurchaseHistoryState> = { [serviceCode]: updatedInfo };
-            updateData(updatedData);
+
+            try {
+                updateData(updatedData);
+                Logger.event(TAG, '구매 주기 변경 성공', {
+                    serviceCode,
+                    oldPeriod: currentInfo.period,
+                    newPeriod: period,
+                });
+            } catch (error) {
+                Logger.error(TAG, '구매 주기 변경 실패', { serviceCode, period, error });
+            }
         },
         [purchaseHistory, updateData]
     );
@@ -91,14 +123,25 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
     // 특정 서비스의 구매 정보 가져오기
     const getPurchaseInfo = useCallback(
         (serviceCode: string): PurchaseInfo | null => {
-            return purchaseHistory?.[serviceCode] || null;
+            const info = purchaseHistory?.[serviceCode] || null;
+            Logger.debug(TAG, `구매 정보 조회: ${serviceCode}`, {
+                exists: !!info,
+                purchased: info?.purchased,
+                period: info?.period,
+            });
+            return info;
         },
         [purchaseHistory]
     );
 
     // 모든 구매 상태를 초기화하는 함수
     const resetAllPurchaseStatus = useCallback(() => {
-        if (!purchaseHistory) return;
+        Logger.info(TAG, '모든 구매 상태 초기화');
+
+        if (!purchaseHistory) {
+            Logger.warn(TAG, '구매 상태 초기화 실패: 구매 기록 없음');
+            return;
+        }
 
         const resetData = categories.reduce((acc, category) => {
             if (purchaseHistory[category]) {
@@ -110,13 +153,24 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
             }
             return acc;
         }, {} as Record<string, PurchaseInfo>);
-        updateData(resetData);
+
+        try {
+            updateData(resetData);
+            Logger.event(TAG, '모든 구매 상태 초기화 성공', { affectedCategories: categories });
+        } catch (error) {
+            Logger.error(TAG, '모든 구매 상태 초기화 실패', { error });
+        }
     }, [categories, purchaseHistory, updateData]);
 
     // 특정 서비스의 구매 상태 초기화
     const resetServicePurchase = useCallback(
         (serviceCode: string) => {
-            if (!purchaseHistory || !purchaseHistory[serviceCode]) return;
+            Logger.info(TAG, `특정 서비스 구매 상태 초기화: ${serviceCode}`);
+
+            if (!purchaseHistory || !purchaseHistory[serviceCode]) {
+                Logger.warn(TAG, '서비스 구매 초기화 실패: 구매 정보 없음', { serviceCode });
+                return;
+            }
 
             const currentInfo = purchaseHistory[serviceCode];
             const resetInfo: PurchaseInfo = {
@@ -126,7 +180,13 @@ export function usePurchaseHistory<T extends string>(categories: T[]) {
             };
 
             const updatedData: Partial<PurchaseHistoryState> = { [serviceCode]: resetInfo };
-            updateData(updatedData);
+
+            try {
+                updateData(updatedData);
+                Logger.event(TAG, '서비스 구매 상태 초기화 성공', { serviceCode });
+            } catch (error) {
+                Logger.error(TAG, '서비스 구매 상태 초기화 실패', { serviceCode, error });
+            }
         },
         [purchaseHistory, updateData]
     );

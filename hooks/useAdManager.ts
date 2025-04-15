@@ -2,6 +2,9 @@ import { useState, useCallback } from 'react';
 import { adManager, AdResult } from '@/utils/AdManager';
 import { useAdWatchStatus } from '@/hooks/useAdWatchStatus';
 import { AdWatchPeriod } from '@/types/storage';
+import Logger from '@/utils/Logger';
+
+const TAG = 'AdManager';
 
 /**
  * 광고 관리 훅 - 광고 요청 및 처리를 간소화하는 커스텀 훅
@@ -22,6 +25,8 @@ export function useAdManager<T extends string>(categories: T[]) {
      */
     const requestAd = useCallback(
         async (category: T, period: AdWatchPeriod): Promise<boolean> => {
+            Logger.info(TAG, `광고 요청: ${category}/${period}`);
+
             try {
                 setLoading(true);
                 setError(null);
@@ -32,21 +37,25 @@ export function useAdManager<T extends string>(categories: T[]) {
                 if (result.success) {
                     // 광고 시청 성공 시 상태 업데이트
                     updateAdWatched(category, period);
+                    Logger.event(TAG, '광고 시청 성공', { category, period });
                     return true;
                 } else {
                     // 광고 시청 실패 시 에러 상태 업데이트
-                    setError(result.error || '광고를 불러오는데 실패했습니다');
+                    const errorMsg = result.error || '광고를 불러오는데 실패했습니다';
+                    setError(errorMsg);
+                    Logger.event(TAG, '광고 시청 실패', { category, period, error: errorMsg });
                     return false;
                 }
             } catch (e) {
                 const errorMessage = e instanceof Error ? e.message : '알 수 없는 오류가 발생했습니다';
                 setError(errorMessage);
+                Logger.error(TAG, `광고 요청 에러: ${errorMessage}`, { category, period });
                 return false;
             } finally {
                 setLoading(false);
             }
         },
-        [updateAdWatched]
+        [updateAdWatched, loading, setLoading, setError]
     );
 
     return {

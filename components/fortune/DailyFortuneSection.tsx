@@ -10,7 +10,6 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { FortuneModal } from '@/components/modal/FortuneModal';
 import { ConfirmModal } from '@/components/modal/ConfirmModal';
 import { FORTUNE_MODAL_KEYS } from '@/constants/ModalKeys';
-import { DAILY_FORTUNE_AD_KEYS } from '@/constants/AdKeys';
 
 import { MOCK_DAILY_OTHER_FORTUNE_DATA } from '@/data/mockData';
 
@@ -31,6 +30,8 @@ const CONFIRM_MODAL_DATA: ConfirmModalData = {
     confirmButtonText: '시청하기',
 };
 
+const DAILY_OTHER_FORTUNE_AD_KEY = 'dailyOtherFortuneAd';
+
 /**
  * 오늘의 다른 운세(애정/금전/직장/학업/건강) 섹션 컴포넌트
  * 각각의 운세를 확인하기 위해 1일 1회 통합 광고 시청이 필요합니다.
@@ -45,7 +46,7 @@ export function DailyFortuneSection() {
     const { selectedService, selectService, resetService } = useServiceSelection<DailyOtherFortuneItem>();
 
     // 광고 관리
-    const { adWatched, requestAd, loading } = useAdManager<typeof DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE>([DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE]);
+    const { adWatched, requestAd, loading } = useAdManager<typeof DAILY_OTHER_FORTUNE_AD_KEY>([DAILY_OTHER_FORTUNE_AD_KEY]);
 
     // 선택된 운세에 따른 운세 데이터 결정
     const fortuneData = useMemo(() => {
@@ -58,7 +59,7 @@ export function DailyFortuneSection() {
     // 운세 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
     const onFortunePressed = (item: DailyOtherFortuneItem) => {
         selectService(item);
-        if (adWatched[DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE]) {
+        if (adWatched[DAILY_OTHER_FORTUNE_AD_KEY]) {
             openModal(FORTUNE_MODAL_KEYS.DAILY_OTHER_FORTUNE_RESULT);
         } else {
             openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
@@ -71,7 +72,7 @@ export function DailyFortuneSection() {
 
         if (!selectedService) return;
 
-        const success = await requestAd(DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE, selectedService.adPeriod);
+        const success = await requestAd(DAILY_OTHER_FORTUNE_AD_KEY, selectedService.adPeriod);
         if (success) {
             openModal(FORTUNE_MODAL_KEYS.DAILY_OTHER_FORTUNE_RESULT);
         }
@@ -109,7 +110,7 @@ export function DailyFortuneSection() {
                         >
                             <IconSymbol
                                 size={27}
-                                name={adWatched[DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE] ? item.icon : 'lock.fill'}
+                                name={adWatched[DAILY_OTHER_FORTUNE_AD_KEY] ? item.icon : 'lock.fill'}
                                 color={item.iconColor}
                                 style={styles.fortuneIcon}
                             />
