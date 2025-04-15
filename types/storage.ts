@@ -1,6 +1,9 @@
 // 저장소 카테고리 타입 정의
 export type StorageCategory = 'UserInfo' | 'AdWatched' | 'PurchaseHistory';
 
+// 주기 타입 정의
+export type Period = 'single-use' | 'daily' | 'weekly' | 'monthly' | 'annual' | 'permanent';
+
 // 사용자 정보 타입 정의
 export interface UserInfo {
     id: string; // 사용자 ID (UUID)
@@ -15,12 +18,12 @@ export interface UserInfo {
 }
 
 // 광고 시청 주기 타입 정의
-export type AdWatchPeriod = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'permanent';
+export type AdWatchPeriod = Period;
 
 // 광고 시청 정보 타입 정의
 export interface AdWatchInfo {
     watched: boolean;
-    watchedAt?: number; // 광고 시청 타임스탬프
+    watchedAt: number; // 광고 시청 타임스탬프
     period: AdWatchPeriod; // 광고 유효 주기
 }
 
@@ -30,13 +33,13 @@ export interface AdWatchedState {
 }
 
 // 구매 유형 정의
-export type PurchaseType = 'permanent' | 'single-use' | 'annual';
+export type purchasePeriod = Period;
 
 // 구매 정보 타입 정의
 export interface PurchaseInfo {
     purchased: boolean;
-    type: PurchaseType;
-    purchaseDate: number; // timestamp
+    purchasedAt: number; // 구매 시각 타임스탬프
+    period: purchasePeriod;
 }
 
 // 구매 내역 상태 타입 정의

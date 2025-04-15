@@ -3,8 +3,7 @@ import { View, StyleSheet, Pressable } from 'react-native';
 
 import { useModalManager } from '@/hooks/useModalManager';
 import { useUserInfo } from '@/hooks/useUserInfo';
-import { useFortuneSelection } from '@/hooks/useFortuneSelection';
-import { useAdWatchStatus } from '@/hooks/useAdWatchStatus';
+import { useAdManager } from '@/hooks/useAdManager';
 
 import { Typography } from '@/components/ui/Typography';
 import { DonutChart } from '@/components/ui/DonutChart';
@@ -12,6 +11,8 @@ import { FortuneSkeletonUI } from '@/components/ui/SkeletonLoader';
 import { FortuneModal } from '@/components/modal/FortuneModal';
 import { ConfirmModal } from '@/components/modal/ConfirmModal';
 import { PrimaryColor, SubTextColor } from '@/constants/Colors';
+import { FORTUNE_MODAL_KEYS } from '@/constants/ModalKeys';
+import { DAILY_FORTUNE_AD_KEYS } from '@/constants/AdKeys';
 
 import { MOCK_DAILY_TOTAL_FORTUNE_DATA } from '@/data/mockData';
 
@@ -22,10 +23,6 @@ const CONFIRM_MODAL_DATA: ConfirmModalData = {
     contents: '광고를 시청하시면 상세한 오늘의 총운 결과를 확인할 수 있습니다!',
     confirmButtonText: '시청하기',
 };
-
-const AD_CONFIRM_MODAL_KEY = 'dailyTotalConfirmAd';
-const FORTUNE_CONTENT_MODAL_KEY = 'dailyTotalFortuneContent';
-const DAILY_TOTAL_FORTUNE_AD_KEY = 'dailyTotalFortuneAd';
 
 /**
  * 오늘의 메인 운세 섹션 컴포넌트
@@ -40,52 +37,41 @@ export function MainFortuneSection() {
     // 모달 상태 관리
     const { modalVisibility, openModal, closeModal } = useModalManager();
 
-    // 광고 상태
-    const { adWatched, markAdWatched } = useAdWatchStatus<typeof DAILY_TOTAL_FORTUNE_AD_KEY>([DAILY_TOTAL_FORTUNE_AD_KEY]);
+    // 광고 관리 훅
+    const { adWatched, requestAd, loading: adLoading } = useAdManager<typeof DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE>([DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE]);
 
+    // 운세 데이터
     const dailyFortuneData = useMemo(() => {
         return MOCK_DAILY_TOTAL_FORTUNE_DATA.total;
     }, []);
 
     // 자세히 보기 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
     const onDetailViewPressed = () => {
-        if (adWatched[DAILY_TOTAL_FORTUNE_AD_KEY]) {
-            openModal(FORTUNE_CONTENT_MODAL_KEY);
+        if (adWatched[DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE]) {
+            openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_RESULT);
         } else {
-            openModal(AD_CONFIRM_MODAL_KEY);
+            openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
         }
     };
 
     // 광고 확인 모달 "시청하기" 클릭 시 처리 (보상형 광고 로직 호출)
     const onConfirmAd = async () => {
-        // 광고 시청 확인 후 모달 닫기
-        closeModal(AD_CONFIRM_MODAL_KEY);
+        closeModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
 
-        try {
-            // 구글 보상형 AdMob 로직 호출 (예: 광고 로드 및 표시)
-            // 실제 구현 시 AdMob SDK와 연동하는 showRewardedAd 함수 호출
-            // const reward = await showRewardedAd();
-            const reward = true; // 테스트를 위한 더미 값
-
-            // 보상을 성공적으로 받은 경우 상태 업데이트
-            if (reward) {
-                markAdWatched(DAILY_TOTAL_FORTUNE_AD_KEY, 'daily');
-                openModal(FORTUNE_CONTENT_MODAL_KEY);
-            }
-        } catch (error) {
-            console.error('광고 시청 실패', error);
-            // 광고 시청 실패 시 필요한 추가 로직을 구현합니다.
+        const success = await requestAd(DAILY_FORTUNE_AD_KEYS.DAILY_TOTAL_FORTUNE, 'daily');
+        if (success) {
+            openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_RESULT);
         }
     };
 
-    // 광고 모달 닫기 (취소) 및 상태 초기화
+    // 광고 모달 닫기 (취소)
     const onCloseAdModal = () => {
-        closeModal(AD_CONFIRM_MODAL_KEY);
+        closeModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
     };
 
-    // 운세 결과 모달 닫기 및 상태 초기화
+    // 운세 결과 모달 닫기
     const onCloseFortuneModal = () => {
-        closeModal(FORTUNE_CONTENT_MODAL_KEY);
+        closeModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_RESULT);
     };
 
     // 사용자 정보가 없을 경우 리다이렉트
@@ -116,7 +102,7 @@ export function MainFortuneSection() {
                 </View>
                 <View style={styles.fortuneContents}>
                     <DonutChart
-                        percentage={72}
+                        percentage={dailyFortuneData.score}
                         color={PrimaryColor}
                         size={150}
                         strokeWidth={9}
@@ -136,6 +122,7 @@ export function MainFortuneSection() {
                     <Pressable
                         style={styles.fortuneDetailButton}
                         onPress={onDetailViewPressed}
+                        disabled={adLoading} // 광고 로딩 중 버튼 비활성화
                     >
                         <Typography
                             size="sm"
@@ -146,18 +133,18 @@ export function MainFortuneSection() {
                 </View>
             </View>
 
-            {/* 오늘의 다른 운세 광고 확인 모달 */}
+            {/* 오늘의 총운 광고 확인 모달 */}
             <ConfirmModal
-                isVisible={modalVisibility[AD_CONFIRM_MODAL_KEY] || false}
+                isVisible={modalVisibility[FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM] || false}
                 onClose={onCloseAdModal}
                 onConfirm={onConfirmAd}
                 data={CONFIRM_MODAL_DATA}
             />
 
-            {/* 오늘의 총운 모달 */}
+            {/* 오늘의 총운 결과 모달 */}
             {dailyFortuneData && (
                 <FortuneModal
-                    isVisible={modalVisibility[FORTUNE_CONTENT_MODAL_KEY] || false}
+                    isVisible={modalVisibility[FORTUNE_MODAL_KEYS.DAILY_FORTUNE_RESULT] || false}
                     onClose={onCloseFortuneModal}
                     text="오늘의 "
                     pointText="총운"

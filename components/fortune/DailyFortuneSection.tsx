@@ -2,19 +2,19 @@ import { useMemo } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 
 import { useModalManager } from '@/hooks/useModalManager';
-import { useFortuneSelection } from '@/hooks/useFortuneSelection';
-import { useAdWatchStatus } from '@/hooks/useAdWatchStatus';
+import { useServiceSelection } from '@/hooks/useServiceSelection';
+import { useAdManager } from '@/hooks/useAdManager';
 
 import { Typography } from '@/components/ui/Typography';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { FortuneModal } from '@/components/modal/FortuneModal';
 import { ConfirmModal } from '@/components/modal/ConfirmModal';
+import { FORTUNE_MODAL_KEYS } from '@/constants/ModalKeys';
+import { DAILY_FORTUNE_AD_KEYS } from '@/constants/AdKeys';
 
 import { MOCK_DAILY_OTHER_FORTUNE_DATA } from '@/data/mockData';
 
-import type { DailyOtherFortuneCode, DailyOtherFortuneName, DailyOtherFortuneItem } from '@/types/fortune';
-import type { AdWatchPeriod } from '@/types/storage';
-
+import type { DailyOtherFortuneItem } from '@/types/fortune';
 import type { ConfirmModalData } from '@/types/modal';
 
 const DAILY_FORTUNE_ITEM_DATA: DailyOtherFortuneItem[] = [
@@ -31,10 +31,6 @@ const CONFIRM_MODAL_DATA: ConfirmModalData = {
     confirmButtonText: '시청하기',
 };
 
-const AD_CONFIRM_MODAL_KEY = 'dailyOtherConfirmAd';
-const FORTUNE_CONTENT_MODAL_KEY = 'dailyOtherFortuneContent';
-const DAILY_OTHER_FORTUNE_AD_KEY = 'dailyOtherFortuneAd';
-
 /**
  * 오늘의 다른 운세(애정/금전/직장/학업/건강) 섹션 컴포넌트
  * 각각의 운세를 확인하기 위해 1일 1회 통합 광고 시청이 필요합니다.
@@ -46,61 +42,51 @@ export function DailyFortuneSection() {
     const { modalVisibility, openModal, closeModal } = useModalManager();
 
     // 운세 선택 상태 관리
-    const { selectedFortune, selectFortune, resetSelection } = useFortuneSelection<DailyOtherFortuneCode, DailyOtherFortuneName>();
+    const { selectedService, selectService, resetService } = useServiceSelection<DailyOtherFortuneItem>();
 
-    // 카테고리별 광고 상태
-    const { adWatched, markAdWatched } = useAdWatchStatus<typeof DAILY_OTHER_FORTUNE_AD_KEY>([DAILY_OTHER_FORTUNE_AD_KEY]);
+    // 광고 관리
+    const { adWatched, requestAd, loading } = useAdManager<typeof DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE>([DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE]);
 
     // 선택된 운세에 따른 운세 데이터 결정
     const fortuneData = useMemo(() => {
-        if (selectedFortune) {
-            return MOCK_DAILY_OTHER_FORTUNE_DATA[selectedFortune.category];
+        if (selectedService) {
+            return MOCK_DAILY_OTHER_FORTUNE_DATA[selectedService.category];
         }
         return null;
-    }, [selectedFortune]);
+    }, [selectedService]);
 
     // 운세 버튼 클릭 시 처리: 선택 상태 업데이트 후 광고 시청 여부에 따라 모달 오픈
-    const onFortunePressed = (category: DailyOtherFortuneCode, name: DailyOtherFortuneName, adPeriod: AdWatchPeriod) => {
-        selectFortune({ category, name, adPeriod });
-        if (adWatched[DAILY_OTHER_FORTUNE_AD_KEY]) {
-            openModal(FORTUNE_CONTENT_MODAL_KEY);
+    const onFortunePressed = (item: DailyOtherFortuneItem) => {
+        selectService(item);
+        if (adWatched[DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE]) {
+            openModal(FORTUNE_MODAL_KEYS.DAILY_OTHER_FORTUNE_RESULT);
         } else {
-            openModal(AD_CONFIRM_MODAL_KEY);
+            openModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
         }
     };
 
     // 광고 확인 모달 "시청하기" 클릭 시 처리 (보상형 광고 로직 호출)
     const onConfirmAd = async () => {
-        // 광고 시청 확인 후 모달 닫기
-        closeModal(AD_CONFIRM_MODAL_KEY);
+        closeModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
 
-        try {
-            // 구글 보상형 AdMob 로직 호출 (예: 광고 로드 및 표시)
-            // 실제 구현 시 AdMob SDK와 연동하는 showRewardedAd 함수 호출
-            // const reward = await showRewardedAd();
-            const reward = true; // 테스트를 위한 더미 값
+        if (!selectedService) return;
 
-            // 보상을 성공적으로 받은 경우 상태 업데이트
-            if (reward && selectedFortune) {
-                markAdWatched(DAILY_OTHER_FORTUNE_AD_KEY, selectedFortune.adPeriod);
-                openModal(FORTUNE_CONTENT_MODAL_KEY);
-            }
-        } catch (error) {
-            console.error('광고 시청 실패', error);
-            // 광고 시청 실패 시 필요한 추가 로직을 구현합니다.
+        const success = await requestAd(DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE, selectedService.adPeriod);
+        if (success) {
+            openModal(FORTUNE_MODAL_KEYS.DAILY_OTHER_FORTUNE_RESULT);
         }
     };
 
     // 광고 모달 닫기 (취소) 및 상태 초기화
     const onCloseAdModal = () => {
-        closeModal(AD_CONFIRM_MODAL_KEY);
-        resetSelection();
+        closeModal(FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM);
+        resetService();
     };
 
     // 운세 결과 모달 닫기 및 상태 초기화
     const onCloseFortuneModal = () => {
-        closeModal(FORTUNE_CONTENT_MODAL_KEY);
-        resetSelection();
+        closeModal(FORTUNE_MODAL_KEYS.DAILY_OTHER_FORTUNE_RESULT);
+        resetService();
     };
 
     return (
@@ -114,22 +100,23 @@ export function DailyFortuneSection() {
                     text={'오늘의 다른 운세'}
                 />
                 <View style={styles.otherFortuneContents}>
-                    {DAILY_FORTUNE_ITEM_DATA.map(({ category, name, adPeriod, icon, iconColor }) => (
+                    {DAILY_FORTUNE_ITEM_DATA.map((item) => (
                         <Pressable
-                            key={category}
+                            key={item.category}
                             style={styles.fortuneButton}
-                            onPress={() => onFortunePressed(category, name, adPeriod)}
+                            onPress={() => onFortunePressed(item)}
+                            disabled={loading} // 광고 로딩 중 버튼 비활성화
                         >
                             <IconSymbol
                                 size={27}
-                                name={adWatched[DAILY_OTHER_FORTUNE_AD_KEY] ? icon : 'lock.fill'}
-                                color={iconColor}
+                                name={adWatched[DAILY_FORTUNE_AD_KEYS.DAILY_OTHER_FORTUNE] ? item.icon : 'lock.fill'}
+                                color={item.iconColor}
                                 style={styles.fortuneIcon}
                             />
                             <Typography
                                 size="md"
                                 bold
-                                text={name}
+                                text={item.name}
                             />
                         </Pressable>
                     ))}
@@ -138,7 +125,7 @@ export function DailyFortuneSection() {
 
             {/* 오늘의 다른 운세 광고 확인 모달 */}
             <ConfirmModal
-                isVisible={modalVisibility[AD_CONFIRM_MODAL_KEY] || false}
+                isVisible={modalVisibility[FORTUNE_MODAL_KEYS.DAILY_FORTUNE_AD_CONFIRM] || false}
                 onClose={onCloseAdModal}
                 onConfirm={onConfirmAd}
                 data={CONFIRM_MODAL_DATA}
@@ -147,10 +134,10 @@ export function DailyFortuneSection() {
             {/* 오늘의 다른 운세 결과 모달 */}
             {fortuneData && (
                 <FortuneModal
-                    isVisible={modalVisibility[FORTUNE_CONTENT_MODAL_KEY] || false}
+                    isVisible={modalVisibility[FORTUNE_MODAL_KEYS.DAILY_OTHER_FORTUNE_RESULT] || false}
                     onClose={onCloseFortuneModal}
                     text="오늘의 "
-                    pointText={selectedFortune?.name || ''}
+                    pointText={selectedService?.name || ''}
                     data={fortuneData}
                 />
             )}
