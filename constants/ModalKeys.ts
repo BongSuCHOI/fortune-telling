@@ -9,6 +9,12 @@ export const FORTUNE_MODAL_KEYS = {
     DAILY_FORTUNE_AD_CONFIRM: 'dailyFortuneAdConfirm',
     SPECIAL_FORTUNE_AD_CONFIRM: 'specialFortuneAdConfirm',
 
+    // 광고 준비 모달 키
+    DAILY_FORTUNE_AD_YET: 'dailyFortuneAdYet',
+
+    // 광고 에러 모달 키
+    DAILY_FORTUNE_AD_ERROR: 'dailyFortuneAdError',
+
     // 결과 보기 모달 키
     DAILY_FORTUNE_RESULT: 'dailyFortuneResult',
     DAILY_OTHER_FORTUNE_RESULT: 'dailyOtherFortuneResult',

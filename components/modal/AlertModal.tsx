@@ -4,17 +4,16 @@ import { ModalContainer } from '@/components/modal/ModalContainer';
 import { Typography } from '@/components/ui/Typography';
 import { PrimaryColor, SubTextColor } from '@/constants/Colors';
 
-import type { ConfirmModalData } from '@/types/modal';
+import type { AlertModalData } from '@/types/modal';
 
 interface ModalProps {
     isVisible: boolean;
     onClose: () => void;
-    onConfirm: () => void;
-    data: ConfirmModalData;
+    data: AlertModalData;
 }
 
-export function ConfirmModal({ isVisible, onClose, onConfirm, data }: ModalProps) {
-    const { title, contents, confirmButtonText } = data;
+export function AlertModal({ isVisible, onClose, data }: ModalProps) {
+    const { title, contents } = data;
 
     return (
         <ModalContainer
@@ -38,24 +37,13 @@ export function ConfirmModal({ isVisible, onClose, onConfirm, data }: ModalProps
             </View>
             <View style={styles.modalButtons}>
                 <Pressable
-                    style={[styles.modalButton, styles.cancelButton]}
+                    style={[styles.modalButton, styles.confirmButton]}
                     onPress={onClose}
                 >
                     <Typography
                         size="base"
                         bold
-                        text="닫기"
-                        style={styles.cancelButtonText}
-                    />
-                </Pressable>
-                <Pressable
-                    style={[styles.modalButton, styles.confirmButton]}
-                    onPress={onConfirm}
-                >
-                    <Typography
-                        size="base"
-                        bold
-                        text={confirmButtonText}
+                        text="확인"
                         style={styles.confirmButtonText}
                     />
                 </Pressable>
@@ -64,7 +52,7 @@ export function ConfirmModal({ isVisible, onClose, onConfirm, data }: ModalProps
     );
 }
 
-export default ConfirmModal;
+export default AlertModal;
 
 // 스타일 정의
 const styles = StyleSheet.create({
@@ -95,14 +83,6 @@ const styles = StyleSheet.create({
         backgroundColor: PrimaryColor,
         width: '100%',
         alignItems: 'center',
-    },
-    cancelButton: {
-        backgroundColor: 'white',
-        borderWidth: 1,
-        borderColor: PrimaryColor,
-    },
-    cancelButtonText: {
-        color: PrimaryColor,
     },
     confirmButton: {
         backgroundColor: PrimaryColor,

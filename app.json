@@ -40,6 +40,13 @@
                 {
                     "launchMode": "most-recent"
                 }
+            ],
+            [
+                "react-native-google-mobile-ads",
+                {
+                    "androidAppId": "ca-app-pub-4609564891060230~9775713393",
+                    "iosAppId": "ca-app-pub-4609564891060230~9775713393"
+                }
             ]
         ],
         "experiments": {

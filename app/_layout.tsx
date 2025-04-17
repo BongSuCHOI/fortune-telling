@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 import { AppState, AppStateStatus, Platform } from 'react-native';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import mobileAds from 'react-native-google-mobile-ads';
 
 import { useUserInfo } from '@/hooks/useUserInfo';
 import Logger from '@/utils/Logger';
@@ -130,6 +131,15 @@ export default function RootLayout() {
 
         hideStartupScreen();
     }, [loaded, userInfoLoading, logInitialized]);
+
+    // 광고 SDK 초기화
+    useEffect(() => {
+        (async () => {
+            // Initialize the ads
+            await mobileAds().initialize();
+            Logger.info(TAG, '광고 SDK 초기화');
+        })();
+    }, []);
 
     // 로딩 중인 경우 스플래시 화면을 계속 표시합니다.
     if (!loaded || userInfoLoading || !logInitialized) {
